@@ -16,8 +16,10 @@ RUN apt-get update && apt-get install -y \
     curl \
     nginx
 
+RUN pecl install redis
+
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd soap
-RUN docker-php-ext-enable pdo pdo_mysql mbstring exif pcntl bcmath gd soap
+RUN docker-php-ext-enable pdo pdo_mysql mbstring exif pcntl bcmath gd soap redis
 
 RUN curl -sS https://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer && \
