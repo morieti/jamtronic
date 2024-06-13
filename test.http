@@ -1,0 +1,12 @@
+###
+
+POST http://localhost:8000/api/send-otp
+Content-Type: application/json
+Accept: application/json
+
+{
+    "mobile": "09123553854"
+}
+
+###
+

@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use App\Models\UserFavorite;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+
+class FavoriteController extends Controller
+{
+    public function index(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $favorites = $user
+            ->favorites()
+            ->with('product')
+            ->where('expires_at', '>', now())
+            ->get();
+
+        return response()->json($favorites);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $request->validate([
+            'product_ids' => 'required|array',
+            'product_ids.*' => 'exists:products,id',
+        ]);
+
+        $user = $request->user();
+        $productIds = $request->input('product_ids');
+        $productIds = array_chunk($productIds, 50);
+
+        $favorites = [];
+        foreach ($productIds as $productId) {
+            $favorites[] = UserFavorite::create([
+                'user_id' => $user->id,
+                'product_id' => $productId,
+                'expires_at' => now()->addMonth()
+            ]);
+        }
+
+        return response()->json($favorites, 201);
+    }
+
+    public function destroy(Request $request): JsonResponse
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+        ]);
+
+        $favorite = UserFavorite::query()
+            ->where('user_id', $request->user()->id)
+            ->where('product_id', $request->input('product_id'))
+            ->first();
+
+        if ($favorite) {
+            $favorite->delete();
+            return response()->json([], 204);
+        }
+
+        return response()->json(['message' => 'Favorite not found'], 404);
+    }
+}

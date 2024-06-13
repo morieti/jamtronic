@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Category;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
+
+class CategoryController extends Controller
+{
+    public function index(): JsonResponse
+    {
+        $categories = Category::all();
+        return response()->json($categories);
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        $category = Category::findOrFail($id);
+        return response()->json($category);
+    }
+
+    public function upload(Request $request): JsonResponse
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('category_images', 'public');
+            return response()->json(['image_name' => $imagePath], 201);
+        }
+
+        return response()->json(['message' => 'Image upload failed'], 400);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:categories',
+            'image_name' => 'nullable|string',
+            'parent_id' => 'nullable|exists:categories,id'
+        ]);
+
+        $data = $request->only(['name', 'slug', 'parent_id', 'image_name']);
+
+        $category = Category::create([
+            'name' => $data['name'],
+            'slug' => $data['slug'],
+            'parent_id' => $data['parent_id'],
+            'image' => $data['image_name'],
+        ]);
+
+        return response()->json($category, 201);
+    }
+
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:categories,slug,' . $id,
+            'image_name' => 'nullable|string',
+            'parent_id' => 'nullable|exists:categories,id'
+        ]);
+
+        $category = Category::findOrFail($id);
+        $data = $request->only(['name', 'slug', 'parent_id', 'image_name']);
+
+        if ($data['image_name']) {
+            // Delete the old image if it exists
+            if ($category->image) {
+                Storage::disk('public')->delete('category_images/' . $category->image);
+            }
+            $category->image = $data['image_name'];
+        }
+
+        $category->name = $data['name'];
+        $category->slug = $data['slug'];
+        $category->parent_id = $data['parent_id'];
+        $category->save();
+
+        return response()->json($category);
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "Login Code: :code": "کد ورود: :otp",
+    "payment_error_amount_in_transaction": "مقدار تراکنش صحیح نمی باشد.",
+    "saman": "بانک سامان",
+    "zarinpal": "زرین پال",
+    "Order ID: :id": "سفارش شماره: :id",
+    "Online Payment :gateway": "پرداخت آنلاین (درگاه :gateway)",
+    "Wallet Use": "پرداخت از کیف پول"
+}
