@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+    backendjam:
+        build: .
+        container_name: backendjam
+        volumes:
+            - ./:/var/www
+        ports:
+            - 85:80
+        env_file:
+            - ./.env

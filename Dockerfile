@@ -7,26 +7,35 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     locales \
     libonig-dev \
+    libxml2-dev \
     zip \
     jpegoptim optipng pngquant gifsicle \
     vim \
     unzip \
     git \
-    curl
+    curl \
+    nginx
 
-RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
+RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd soap
+RUN docker-php-ext-enable pdo pdo_mysql mbstring exif pcntl bcmath gd soap
 
 RUN curl -sS https://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer && \
     chown -R www-data: /var/www
 
-USER www-data
+COPY ["./nginx.conf", "/etc/nginx/sites-available/default"]
+COPY ["./start.sh", "/"]
+RUN chmod +x /start.sh
+
 WORKDIR /var/www
 
 COPY --chown=www-data:www-data ["./composer.json", "./package.json", "/var/www/"]
+COPY --chown=www-data:www-data ["./", "/var/www"]
 RUN composer install
 
-COPY --chown=www-data ["./", "/var/www"]
+RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
 
-EXPOSE 9000
-CMD ["php-fpm"]
+RUN ls -la
+
+EXPOSE 80
+CMD ["/start.sh"]
