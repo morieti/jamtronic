@@ -13,13 +13,19 @@ RUN apt-get update && apt-get install -y \
     vim \
     unzip \
     git \
+    tar \
     curl \
     nginx
 
-RUN pecl install redis
+#RUN pecl install redis
 
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd soap
-RUN docker-php-ext-enable pdo pdo_mysql mbstring exif pcntl bcmath gd soap redis
+RUN docker-php-ext-enable pdo pdo_mysql mbstring exif pcntl bcmath gd soap
+
+RUN pecl channel-update pecl.php.net && \
+    pecl install redis-6.0.2 && \
+    docker-php-ext-enable redis
+
 
 RUN curl -sS https://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer && \

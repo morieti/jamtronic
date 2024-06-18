@@ -1,12 +1,58 @@
 version: "3.9"
 
 services:
+    mysql:
+        container_name: mysql
+        image: mysql:8.4.0
+        volumes:
+            - ./mysql_data:/var/lib/mysql
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=jamtronic
+            - MYSQL_USER=jamtronic
+            - MYSQL_PASSWORD=jampass
+        restart: always
+
+    redisjam:
+        image: redis:6.2
+        container_name: redisjam
+        ports:
+            - "6389:6379"
+        restart: always
+
     backendjam:
-        build: .
+        build: ./code
         container_name: backendjam
         volumes:
-            - ./:/var/www
+            - ./code:/var/www
         ports:
-            - 85:80
+            - "8500:80"
+        depends_on:
+            - mysql
+            - redisjam
         env_file:
-            - ./.env
+            - ./code/.env
+
+    workerjamq:
+        container_name: workerjamq
+        build: ./code
+        command: php artisan queue:listen
+        volumes:
+            - ./code:/var/www
+        depends_on:
+            - backendjam
+        env_file:
+            - ./code/.env
+
+    workerjams:
+        container_name: workerjams
+        build: ./code
+        command: php artisan schedule:work
+        volumes:
+            - ./code:/var/www
+        depends_on:
+            - backendjam
+        env_file:
+            - ./code/.env
