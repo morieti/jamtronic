@@ -23,7 +23,8 @@ class Product extends Model
         'special_offer',
         'discount_rules',
         'description',
-        'technical_description'
+        'technical_description',
+        'faq'
     ];
 
     public function comments(): MorphMany

@@ -19,7 +19,7 @@ class ProductFactory extends Factory
         return [
             'category_id' => random_int(1, 4),
             'brand_id' => null,
-            'title' => fake('fa')->sentence(),
+            'title' => fake()->sentence(),
             'code' => fake()->unique()->randomNumber(4),
             'price' => random_int(100, 1000) * 100,
             'inventory' => random_int(0, 25),
@@ -29,8 +29,9 @@ class ProductFactory extends Factory
                 '1' => '0',
                 '5' => '3',
             ]),
-            'description' => fake('fa')->randomHtml(3),
-            'technical_description' => fake('fa')->randomHtml(3),
+            'description' => fake()->randomHtml(),
+            'technical_description' => fake()->randomHtml(),
+            'faq' => fake()->randomHtml(),
         ];
     }
 }
