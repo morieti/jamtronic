@@ -9,14 +9,13 @@
         "ext-curl": "*",
         "ext-soap": "*",
         "ezyang/htmlpurifier": "^4.17",
-        "guzzlehttp/guzzle": "^7.8",
+        "http-interop/http-factory-guzzle": "^1.2",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^10.10",
         "laravel/tinker": "^2.9",
-        "matchish/laravel-scout-elasticsearch": "^7.6",
-        "morilog/jalali": "^3.4",
-        "nyholm/psr7": "^1.8"
+        "meilisearch/meilisearch-php": "^1.8",
+        "morilog/jalali": "^3.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

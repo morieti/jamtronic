@@ -33,7 +33,7 @@ class Product extends Model
      *
      * @return string
      */
-    public function searchableAs()
+    public function searchableAs(): string
     {
         return 'products_index';
     }
@@ -45,7 +45,20 @@ class Product extends Model
      */
     public function toSearchableArray()
     {
-        return $this->toArray();
+        return [
+            'id' => (int)$this->id,
+            'category_id' => (int)$this->category_id,
+            'brand_id' => (int)$this->brand_id,
+            'title' => $this->title,
+            'code' => $this->code,
+            'price' => (int)$this->price,
+            'inventory' => (int)$this->inventory,
+            'discount_percent' => (int)$this->discount_percent,
+            'special_offer' => (bool)$this->special_offer,
+            'description' => $this->description,
+            'technical_description' => $this->technical_description,
+            'faq' => $this->faq
+        ];
     }
 
     public function comments(): MorphMany

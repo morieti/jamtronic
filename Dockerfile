@@ -15,16 +15,15 @@ RUN apt-get update && apt-get install -y \
     git \
     tar \
     curl \
+    wget \
     nginx
-
-#RUN pecl install redis
 
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd soap
 RUN docker-php-ext-enable pdo pdo_mysql mbstring exif pcntl bcmath gd soap
 
-RUN pecl channel-update pecl.php.net && \
-    pecl install redis-6.0.2 && \
-    docker-php-ext-enable redis
+RUN wget http://pecl.php.net/get/redis-6.0.2.tgz -O /tmp/redis-6.0.2.tgz
+RUN pecl install /tmp/redis-6.0.2.tgz
+RUN docker-php-ext-enable redis
 
 
 RUN curl -sS https://getcomposer.org/installer | php && \
@@ -42,8 +41,6 @@ COPY --chown=www-data:www-data ["./", "/var/www"]
 RUN composer install
 
 RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
-
-RUN ls -la
 
 EXPOSE 80
 CMD ["/start.sh"]
