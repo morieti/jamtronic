@@ -3,7 +3,7 @@
 namespace App\Engines;
 
 use Laravel\Scout\Builder;
-use Laravel\Scout\Engines\MeiliSearchEngine;
+use Laravel\Scout\Engines\MeilisearchEngine;
 
 class CustomMeiliSearchEngine extends MeiliSearchEngine
 {
