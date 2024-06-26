@@ -25,8 +25,32 @@ class ProductController extends Controller
 
     public function search(Request $request): JsonResponse
     {
-        $query = $request->input('q');
-        $filters = $request->except('q', []);
+        $query = $request->input('q', '');
+        $filters = $request->except(['q'], []);
+        $perPage = 24;
+        $page = $request->input('page', 1);
+        unset($filters['page']);
+
+        $priceFilter = $filters['price'] ?? null;
+        if ($priceFilter) {
+            $priceFilter = explode(',', $priceFilter);
+            $minPrice = $priceFilter[0];
+            if ($minPrice) {
+                $filters['price >'] = $minPrice;
+            }
+
+            $maxPrice = $priceFilter[1];
+            if ($maxPrice) {
+                $filters['price <'] = $maxPrice;
+            }
+            unset($filters['price']);
+        }
+
+        $available = $filters['is_available'] ?? null;
+        if (!is_null($available)) {
+            $filters['inventory >'] = $available ? 0 : -1;
+            unset($filters['is_available']);
+        }
 
         $products = Product::search($query)
             ->when($filters, function ($search, $filters) {
@@ -34,7 +58,7 @@ class ProductController extends Controller
                     $search->where($field, $value);
                 }
             })
-            ->get();
+            ->paginate($perPage, 'page', $page);
 
         return response()->json($products);
     }

@@ -6,7 +6,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Search Engine
+    | Default Search Engines
     |--------------------------------------------------------------------------
     |
     | This option controls the default search connection that gets used while

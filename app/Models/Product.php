@@ -54,7 +54,7 @@ class Product extends Model
             'price' => (int)$this->price,
             'inventory' => (int)$this->inventory,
             'discount_percent' => (int)$this->discount_percent,
-            'special_offer' => (bool)$this->special_offer,
+            'special_offer' => (int)$this->special_offer,
             'description' => $this->description,
             'technical_description' => $this->technical_description,
             'faq' => $this->faq

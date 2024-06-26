@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+use App\Engines\CustomMeiliSearchEngine;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Scout\EngineManager;
+use MeiliSearch\Client as MeiliSearchClient;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,6 +30,13 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perMinute(5)->by($request->ip()),
                 Limit::perMinute(5)->by($request->input('mobile')),
             ];
+        });
+
+        resolve(EngineManager::class)->extend('meilisearch', function () {
+            return new CustomMeiliSearchEngine(new MeiliSearchClient(
+                config('scout.meilisearch.host'),
+                config('scout.meilisearch.key')
+            ));
         });
     }
 }

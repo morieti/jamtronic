@@ -1,69 +1,16 @@
 version: "3.9"
 
 services:
-    mysql:
-        container_name: mysql
-        image: mysql:8.4.0
-        volumes:
-            - ./mysql_data:/var/lib/mysql
+    meilisearch:
+        image: getmeili/meilisearch:v0.29.0
+        container_name: meilisearch
         ports:
-            - "3306:3306"
+            - "127.0.0.1:7700:7700"
+        volumes:
+            - ./data.ms:/data.ms
         environment:
-            - MYSQL_ROOT_PASSWORD=root
-            - MYSQL_DATABASE=jamtronic
-            - MYSQL_USER=jamtronic
-            - MYSQL_PASSWORD=jampass
-        restart: always
-
-    elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
-        container_name: elasticsearch
-        environment:
-            - discovery.type=single-node
-            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-        ports:
-            - "9200:9200"
-        volumes:
-            - ./esdata:/usr/share/elasticsearch/data
-
-    redisjam:
-        image: redis:6.2
-        container_name: redisjam
-        ports:
-            - "6389:6379"
-        restart: always
-
-    backendjam:
-        build: ./code
-        container_name: backendjam
-        volumes:
-            - ./code:/var/www
-        ports:
-            - "8500:80"
-        depends_on:
-            - mysql
-            - redisjam
-        env_file:
-            - ./code/.env
-
-    workerjamq:
-        container_name: workerjamq
-        build: ./code
-        command: php artisan queue:listen
-        volumes:
-            - ./code:/var/www
-        depends_on:
-            - backendjam
-        env_file:
-            - ./code/.env
-
-    workerjams:
-        container_name: workerjams
-        build: ./code
-        command: php artisan schedule:work
-        volumes:
-            - ./code:/var/www
-        depends_on:
-            - backendjam
-        env_file:
-            - ./code/.env
+            - MEILI_NO_ANALYTICS=false
+            - MEILI_ENV=${MEILI_ENV:-development}
+            - MEILI_LOG_LEVEL
+            - MEILI_DB_PATH=${MEILI_DB_PATH:-/data.ms}
+            - MEILI_MASTER_KEY=${MEILI_MASTER_KEY:-m@dkFD3*s4Lo}
