@@ -15,7 +15,8 @@
         "laravel/scout": "^10.10",
         "laravel/tinker": "^2.9",
         "matchish/laravel-scout-elasticsearch": "^7.6",
-        "morilog/jalali": "^3.4"
+        "morilog/jalali": "^3.4",
+        "nyholm/psr7": "^1.8"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
