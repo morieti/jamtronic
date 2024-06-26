@@ -9,6 +9,7 @@
         "ext-curl": "*",
         "ext-soap": "*",
         "ezyang/htmlpurifier": "^4.17",
+        "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^10.10",
