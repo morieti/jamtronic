@@ -48,9 +48,10 @@ class ProductController extends Controller
             "inventory" => "required|integer",
             "discount_percent" => "nullable|integer",
             "special_offer" => "boolean",
-            "discount_rules" => "nullable|string",
+            "discount_rules" => "required|array",
             "description" => "required|string",
             "technical_description" => "nullable|string",
+            "faq" => "nullable|string",
             "image_names" => "nullable|array",
             "image_names.*" => "string"
         ]);
@@ -77,16 +78,17 @@ class ProductController extends Controller
     {
         $request->validate([
             "category_id" => "required|exists:categories,id",
-            "brand_id" => "required|exists:brands,id",
+            "brand_id" => "nullable|exists:brands,id",
             "title" => "required|string|max:255",
             "code" => "required|integer|unique:products,code," . $id,
             "price" => "required|numeric",
             "inventory" => "required|integer",
             "discount_percent" => "nullable|integer",
             "special_offer" => "boolean",
-            "discount_rules" => "nullable|string",
+            "discount_rules" => "required|array",
             "description" => "required|string",
             "technical_description" => "nullable|string",
+            "faq" => "nullable|string",
             "image_names" => "nullable|array",
             "image_names.*" => "string"
         ]);
