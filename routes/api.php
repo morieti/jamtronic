@@ -26,6 +26,8 @@ Route::middleware('throttle:otp')->group(function () {
     });
 });
 
+Route::get('search', [ProductController::class, 'search']);
+
 Route::get('categories', [CategoryController::class, 'index']);
 Route::get('categories/{id}', [CategoryController::class, 'show']);
 

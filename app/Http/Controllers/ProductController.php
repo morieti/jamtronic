@@ -23,6 +23,22 @@ class ProductController extends Controller
         return response()->json($product);
     }
 
+    public function search(Request $request): JsonResponse
+    {
+        $query = $request->input('q');
+        $filters = $request->except('q', []);
+
+        $products = Product::search($query)
+            ->when($filters, function ($search, $filters) {
+                foreach ($filters as $field => $value) {
+                    $search->where($field, $value);
+                }
+            })
+            ->get();
+
+        return response()->json($products);
+    }
+
     public function upload(Request $request): JsonResponse
     {
         $request->validate([
