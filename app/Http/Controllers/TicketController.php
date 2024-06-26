@@ -47,7 +47,8 @@ class TicketController extends Controller
         ]);
 
         if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store('tickets');
+            $filePath = $request->file('file')->store('tickets', 'public');
+            $filePath = "storage/tickets/" . basename($filePath);
             $ticket->update(['file' => $filePath]);
         }
 

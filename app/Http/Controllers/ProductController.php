@@ -66,7 +66,7 @@ class ProductController extends Controller
             foreach ($request->input("image_names") as $imageName) {
                 ProductImage::create([
                     "product_id" => $product->id,
-                    "image_path" => "product_images/" . $imageName
+                    "image_path" => "storage/product_images/" . $imageName
                 ]);
             }
         }
@@ -108,7 +108,7 @@ class ProductController extends Controller
             foreach ($request->input("image_names") as $imageName) {
                 ProductImage::create([
                     "product_id" => $product->id,
-                    "image_path" => "product_images/" . $imageName
+                    "image_path" => "storage/product_images/" . $imageName
                 ]);
             }
         }

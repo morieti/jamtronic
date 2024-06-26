@@ -29,7 +29,7 @@ class CategoryController extends Controller
 
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('category_images', 'public');
-            return response()->json(['image_name' => $imagePath], 201);
+            return response()->json(["image_name" => basename($imagePath)], 201);
         }
 
         return response()->json(['message' => 'Image upload failed'], 400);
@@ -50,7 +50,7 @@ class CategoryController extends Controller
             'name' => $data['name'],
             'slug' => $data['slug'],
             'parent_id' => $data['parent_id'],
-            'image' => $data['image_name'],
+            'image' => "storage/category_images/" . $data['image_name'],
         ]);
 
         return response()->json($category, 201);
@@ -71,9 +71,9 @@ class CategoryController extends Controller
         if ($data['image_name']) {
             // Delete the old image if it exists
             if ($category->image) {
-                Storage::disk('public')->delete('category_images/' . $category->image);
+                Storage::disk('public')->delete($category->image);
             }
-            $category->image = $data['image_name'];
+            $category->image = "storage/category_images/" . $data['image_name'];
         }
 
         $category->name = $data['name'];
