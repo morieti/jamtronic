@@ -9,9 +9,15 @@ use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $categories = Category::all();
+        if ($request->input('main', 0) == 1) {
+            $categories = Category::query()
+                ->whereNull('parent_id')
+                ->get();
+        } else {
+            $categories = Category::all();
+        }
         return response()->json($categories);
     }
 
