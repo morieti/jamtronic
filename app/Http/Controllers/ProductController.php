@@ -26,8 +26,8 @@ class ProductController extends Controller
     public function search(Request $request): JsonResponse
     {
         $query = $request->input('q', '');
-        $perPage = $request->input('size', 20);
-        $page = $request->input('page', 1);
+        $perPage = (int)$request->input('size', 20);
+        $page = (int)$request->input('page', 1);
 
         $filters = $request->except(['q', 'size', 'page'], []);
 
