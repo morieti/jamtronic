@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\HtmlPurifierHelper;
 use App\Models\Product;
 use App\Models\ProductImage;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use App\Helpers\HtmlPurifierHelper;
 
 class ProductController extends Controller
 {
@@ -26,10 +26,10 @@ class ProductController extends Controller
     public function search(Request $request): JsonResponse
     {
         $query = $request->input('q', '');
-        $filters = $request->except(['q'], []);
-        $perPage = 24;
+        $perPage = $request->input('size', 20);
         $page = $request->input('page', 1);
-        unset($filters['page']);
+
+        $filters = $request->except(['q', 'size', 'page'], []);
 
         $priceFilter = $filters['price'] ?? null;
         if ($priceFilter) {
@@ -53,12 +53,18 @@ class ProductController extends Controller
         }
 
         $products = Product::search($query)
+            ->query(function ($query) {
+                $query->with('images', 'category', 'brand');
+            })
             ->when($filters, function ($search, $filters) {
                 foreach ($filters as $field => $value) {
                     $search->where($field, $value);
                 }
             })
             ->paginate($perPage, 'page', $page);
+
+        $products = $products->jsonSerialize();
+        unset($products['data']['totalHits']);
 
         return response()->json($products);
     }

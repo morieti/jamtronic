@@ -31,12 +31,5 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perMinute(5)->by($request->input('mobile')),
             ];
         });
-
-        resolve(EngineManager::class)->extend('meilisearch', function () {
-            return new CustomMeiliSearchEngine(new MeiliSearchClient(
-                config('scout.meilisearch.host'),
-                config('scout.meilisearch.key')
-            ));
-        });
     }
 }

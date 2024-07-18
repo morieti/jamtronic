@@ -25,7 +25,10 @@ class Product extends Model
         'discount_rules',
         'description',
         'technical_description',
-        'faq'
+        'faq',
+        'images',
+        'category',
+        'brand'
     ];
 
     /**
@@ -43,7 +46,7 @@ class Product extends Model
      *
      * @return array
      */
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
         return [
             'id' => (int)$this->id,
@@ -57,7 +60,10 @@ class Product extends Model
             'special_offer' => (int)$this->special_offer,
             'description' => $this->description,
             'technical_description' => $this->technical_description,
-            'faq' => $this->faq
+            'faq' => $this->faq,
+            'images' => $this->images,
+            'category' => $this->category,
+            'brand' => $this->brand,
         ];
     }
 
