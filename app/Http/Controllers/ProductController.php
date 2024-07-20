@@ -20,6 +20,13 @@ class ProductController extends Controller
     public function show(int $id): JsonResponse
     {
         $product = Product::with("images")->findOrFail($id);
+        $images = [];
+        foreach ($product->images as $image) {
+            $imagePath = explode('/', $image->image_path);
+            $image['name'] = end($imagePath);
+            $images[] = $image;
+        }
+        $product->images = $images;
         return response()->json($product);
     }
 
