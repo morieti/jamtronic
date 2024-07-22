@@ -40,33 +40,51 @@ class ProductController extends Controller
 
         $priceFilter = $filters['price'] ?? null;
         if ($priceFilter) {
-            $priceFilter = explode(',', $priceFilter);
-            $minPrice = $priceFilter[0];
-            if ($minPrice) {
-                $filters['price >'] = $minPrice;
+            $priceRange = explode(',', $priceFilter);
+            if (isset($priceRange[0]) && $priceRange[0] !== '') {
+                $filters[] = 'price >= ' . $priceRange[0];
             }
-
-            $maxPrice = $priceFilter[1];
-            if ($maxPrice) {
-                $filters['price <'] = $maxPrice;
+            if (isset($priceRange[1]) && $priceRange[1] !== '') {
+                $filters[] = 'price <= ' . $priceRange[1];
             }
             unset($filters['price']);
         }
 
+        $brandFilter = $filters['brand_id'] ?? null;
+        if ($brandFilter) {
+            $brandFilterPcs = explode(',', $brandFilter);
+            $brandFilter = [];
+            foreach ($brandFilterPcs as $brandFilterPc) {
+                $brandFilter[] = 'brand_id = ' . $brandFilterPc;
+            }
+            $filters[] = '(' . implode(' OR ', $brandFilter) . ')';
+            unset($filters['brand_id']);
+        }
+
         $available = $filters['is_available'] ?? null;
         if (!is_null($available)) {
-            $filters['inventory >'] = $available ? 0 : -1;
+            $filters[] = 'inventory > ' . ($available ? 0 : -1);
             unset($filters['is_available']);
         }
+
+        $filterQuery = [];
+        foreach ($filters as $key => $filter) {
+            if (empty($key)) {
+                $filterQuery[] = $filter;
+            } else {
+                $filterQuery[] = $key . ' = ' . $filter;
+            }
+        }
+
+        $filterQuery = implode(' AND ', $filterQuery);
 
         $products = Product::search($query)
             ->query(function ($query) {
                 $query->with('images', 'category', 'brand');
             })
-            ->when($filters, function ($search, $filters) {
-                foreach ($filters as $field => $value) {
-                    $search->where($field, $value);
-                }
+            ->when($filterQuery, function ($search, $filterQuery) {
+                $search->options['filter'] = $filterQuery;
+                $search->raw($filterQuery);
             })
             ->paginate($perPage, 'page', $page);
 
