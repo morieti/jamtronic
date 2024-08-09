@@ -27,8 +27,12 @@ class UserController extends Controller
      */
     public function send(Request $request): JsonResponse
     {
-        $request->validate(['mobile' => ['required', new MobileNumber()]]);
-        $this->userService->sendOtp($request->mobile);
+        $request->validate([
+            'mobile' => ['required', new MobileNumber()],
+            'full_name' => 'required|string|max:255',
+        ]);
+        $fullName = $request->get('full_name');
+        $this->userService->sendOtp($request->mobile, $fullName);
 
         return response()->json(['message' => __('otp.sent_success')]);
     }
@@ -46,10 +50,9 @@ class UserController extends Controller
             'otp' => 'required'
         ]);
 
-        $isValid = $this->userService->verifyOtp($request->mobile, $request->otp);
-
-        if ($isValid) {
-            $token = $this->userService->loginOrRegisterUser($request->mobile);
+        $fullName = $this->userService->verifyOtp($request->mobile, $request->otp);
+        if ($fullName) {
+            $token = $this->userService->loginOrRegisterUser($request->mobile, $fullName);
             return response()->json(['message' => __('otp.verified_success'), 'token' => $token]);
         }
 

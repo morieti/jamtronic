@@ -138,6 +138,7 @@ return [
         'index-settings' => [
              Product::class => [
                  'filterableAttributes'=> [
+                     'id',
                      'category_id',
                      'brand_id',
                      'price',

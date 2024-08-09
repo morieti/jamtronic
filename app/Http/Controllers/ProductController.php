@@ -5,12 +5,20 @@ namespace App\Http\Controllers;
 use App\Helpers\HtmlPurifierHelper;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Services\ProductService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    protected ProductService $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
+
     public function index(): JsonResponse
     {
         $products = Product::with("images")->get();
@@ -40,43 +48,23 @@ class ProductController extends Controller
 
         $priceFilter = $filters['price'] ?? null;
         if ($priceFilter) {
-            $priceRange = explode(',', $priceFilter);
-            if (isset($priceRange[0]) && $priceRange[0] !== '') {
-                $filters[] = 'price >= ' . $priceRange[0];
-            }
-            if (isset($priceRange[1]) && $priceRange[1] !== '') {
-                $filters[] = 'price <= ' . $priceRange[1];
-            }
+            $filters[] = $this->productService->setPriceFilter($priceFilter);
             unset($filters['price']);
         }
 
         $brandFilter = $filters['brand_id'] ?? null;
         if ($brandFilter) {
-            $brandFilterPcs = explode(',', $brandFilter);
-            $brandFilter = [];
-            foreach ($brandFilterPcs as $brandFilterPc) {
-                $brandFilter[] = 'brand_id = ' . $brandFilterPc;
-            }
-            $filters[] = '(' . implode(' OR ', $brandFilter) . ')';
+            $filters[] = $this->productService->setBrandFilter($brandFilter);
             unset($filters['brand_id']);
         }
 
         $available = $filters['is_available'] ?? null;
         if (!is_null($available)) {
-            $filters[] = 'inventory > ' . ($available ? 0 : -1);
+            $filters[] = $this->productService->setAvailabilityFilter($available);
             unset($filters['is_available']);
         }
 
-        $filterQuery = [];
-        foreach ($filters as $key => $filter) {
-            if (empty($key)) {
-                $filterQuery[] = $filter;
-            } else {
-                $filterQuery[] = $key . ' = ' . $filter;
-            }
-        }
-
-        $filterQuery = implode(' AND ', $filterQuery);
+        $filterQuery = $this->productService->arrangeFilters($filters);
 
         $products = Product::search($query)
             ->query(function ($query) {
@@ -92,6 +80,43 @@ class ProductController extends Controller
         unset($products['data']['totalHits']);
 
         return response()->json($products);
+    }
+
+    public function related(int $productId): JsonResponse
+    {
+        $product = Product::query()->findOrFail($productId);
+
+        $categories = [$product->category_id];
+        if ($product->category->parent_id) {
+            $categories[] = $product->category->parent_id;
+        }
+        $categories = implode(',', $categories);
+
+        $priceRange = round($product->price * 0.7) . ',' . round($product->price * 1.3);
+
+        $filters = [
+            $this->productService->setCategoryFilter($categories),
+            $this->productService->setPriceFilter($priceRange),
+            $this->productService->setAvailabilityFilter(true),
+            'id != ' . $product->id,
+        ];
+
+        $filterQuery = $this->productService->arrangeFilters($filters);
+
+        $relatedProducts = Product::search('')
+            ->query(function ($query) {
+                $query->with('images', 'category', 'brand');
+            })
+            ->when($filterQuery, function ($search, $filterQuery) {
+                $search->options['filter'] = $filterQuery;
+                $search->raw($filterQuery);
+            })
+            ->paginate(6, 'page', 1);
+
+        $relatedProducts = $relatedProducts->jsonSerialize();
+        unset($relatedProducts['data']['totalHits']);
+
+        return response()->json($relatedProducts);
     }
 
     public function upload(Request $request): JsonResponse

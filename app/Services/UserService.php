@@ -12,7 +12,7 @@ class UserService
 {
     /**
      */
-    public function sendOtp($mobile): bool
+    public function sendOtp($mobile, string $fullName = '-'): bool
     {
         try {
             // Generate a random 6 digit OTP
@@ -20,9 +20,10 @@ class UserService
             if (env('APP_DEBUG')) {
                 $otp = '123456';
             }
+            $cacheValue = $otp . '_' . $fullName;
 
             $expiresAt = Carbon::now()->addMinutes(2);
-            cache()->set('otp_' . $mobile, $otp, $expiresAt);
+            cache()->set('otp_' . $mobile, $cacheValue, $expiresAt);
 
             // Dispatch the job to send the OTP
             SendSMSJob::dispatch($mobile, __('Login Code: :otp', ['otp' => $otp]));
@@ -34,28 +35,35 @@ class UserService
         return true;
     }
 
-    public function verifyOtp($mobile, $otp): bool
+    public function verifyOtp($mobile, $otp): string
     {
         try {
             // Retrieve the OTP from Redis
             $cachedOtp = cache()->get("otp_{$mobile}");
 
-            if ($cachedOtp && $cachedOtp == $otp) {
-                return true;
+            if ($cachedOtp) {
+                $pcs = explode('_', $cachedOtp);
+                $cachedOtp = $pcs[0];
+                $fullName = $pcs[1] ?? '-';
+                if ($cachedOtp == $otp) {
+                    return $fullName;
+                }
             }
         } catch (\Throwable $exception) {
             Log::error($exception->getMessage());
         }
+
         return false;
     }
 
-    public function loginOrRegisterUser($mobile): string
+    public function loginOrRegisterUser($mobile, $fullName = ''): string
     {
         /** @var User $user */
         $user = User::query()->firstOrCreate(['mobile' => $mobile]);
         if (!$user->wasRecentlyCreated) {
             $user->tokens()->delete();
         }
+        $user->update(['full_name' => $fullName]);
         return $user->createToken($mobile)->plainTextToken;
     }
 }
