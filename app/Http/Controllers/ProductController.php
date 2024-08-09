@@ -82,9 +82,10 @@ class ProductController extends Controller
         return response()->json($products);
     }
 
-    public function related(int $productId): JsonResponse
+    public function related(Request $request, int $productId): JsonResponse
     {
         $product = Product::query()->findOrFail($productId);
+        $size = (int)$request->input('size', 6);
 
         $categories = [$product->category_id];
         if ($product->category->parent_id) {
@@ -111,7 +112,7 @@ class ProductController extends Controller
                 $search->options['filter'] = $filterQuery;
                 $search->raw($filterQuery);
             })
-            ->paginate(6, 'page', 1);
+            ->paginate($size, 'page', 1);
 
         $relatedProducts = $relatedProducts->jsonSerialize();
         unset($relatedProducts['data']['totalHits']);
