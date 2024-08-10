@@ -153,7 +153,7 @@ class ProductController extends Controller
             "image_names.*" => "string"
         ]);
 
-        $data = $request->all();
+        $data = $request->except(['image_names']);
         $data["description"] = HtmlPurifierHelper::clean($request->input("description"));
         $data["technical_description"] = HtmlPurifierHelper::clean($request->input("technical_description"));
 
