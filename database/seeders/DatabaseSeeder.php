@@ -19,6 +19,12 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
+        User::factory()->create([
+            'full_name' => 'Test User',
+            'mobile' => '09123553854',
+            'email' => 'm.pouretemadi@digikala.com',
+        ]);
+
         $this->call([
             AdminSeeder::class,
             LocationSeeder::class,
@@ -26,6 +32,7 @@ class DatabaseSeeder extends Seeder
             BrandSeeder::class,
             ProductSeeder::class,
             ShippingMethodSeeder::class,
+            OrderSeeder::class,
         ]);
     }
 }
