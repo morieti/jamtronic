@@ -103,6 +103,11 @@ class OrderController extends Controller
         }
     }
 
+    public function getPaymentMethods(): JsonResponse
+    {
+        return response()->json($this->paymentService->getAllPaymentGateways());
+    }
+
     public function update(Request $request, int $id): Response
     {
         $request->validate([

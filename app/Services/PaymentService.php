@@ -9,11 +9,21 @@ use App\Services\PaymentGateway\PaymentGatewayInterface;
 use App\Services\PaymentGateway\SamanGateway;
 use App\Services\PaymentGateway\ZarinpalGateway;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class PaymentService
 {
     protected $paymentGateway;
+
+    protected const string GATEWAY_SAMAN = 'saman';
+    protected const string GATEWAY_ZARINPAL = 'zarinpal';
+
+    public function getAllPaymentGateways(): array
+    {
+        return [
+            self::GATEWAY_SAMAN,
+            self::GATEWAY_ZARINPAL,
+        ];
+    }
 
     public function calcProductPrice(Product $product, int $quantity): int
     {
@@ -56,26 +66,6 @@ class PaymentService
         ];
     }
 
-    public function getPaymentGateway(string $gateway, Order $order): PaymentGatewayInterface
-    {
-        if ($this->paymentGateway) {
-            return $this->paymentGateway;
-        }
-
-        switch ($gateway) {
-            case 'saman':
-                $this->paymentGateway = new SamanGateway(config('services.saman'), $order);
-                break;
-            case 'zarinpal':
-                $this->paymentGateway = new ZarinpalGateway(config('services.zarinpal'), $order);
-                break;
-            default:
-                throw new \Exception('Gateway not supported');
-        }
-
-        return $this->paymentGateway;
-    }
-
     public function initTransaction(Order $order): string
     {
         $gateway = $this->getPaymentGateway($order->payment_gateway, $order);
@@ -90,6 +80,26 @@ class PaymentService
         ]);
 
         return $result['url'];
+    }
+
+    public function getPaymentGateway(string $gateway, Order $order): PaymentGatewayInterface
+    {
+        if ($this->paymentGateway) {
+            return $this->paymentGateway;
+        }
+
+        switch ($gateway) {
+            case self::GATEWAY_SAMAN:
+                $this->paymentGateway = new SamanGateway(config('services.saman'), $order);
+                break;
+            case self::GATEWAY_ZARINPAL:
+                $this->paymentGateway = new ZarinpalGateway(config('services.zarinpal'), $order);
+                break;
+            default:
+                throw new \Exception('Gateway not supported');
+        }
+
+        return $this->paymentGateway;
     }
 
     public function verifyTransaction(Order $order, Request $request): bool

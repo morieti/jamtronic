@@ -63,6 +63,8 @@ Route::middleware('userAuth')->group(function () {
     Route::post('orders', [OrderController::class, 'store']);
     Route::put('orders/{id}', [OrderController::class, 'update']);
 
+    Route::get('payment/methods', [OrderController::class, 'getPaymentMethods']);
+
     Route::get('payment/saman/{token}/{orderId}', [PaymentController::class, 'saman'])->name('payment.saman');
     Route::get('payment/callback/{orderId}', [PaymentController::class, 'callback'])->name('payment.callback');
     Route::post('payment/callback/{orderId}', [PaymentController::class, 'callback'])->name('payment.callback');
