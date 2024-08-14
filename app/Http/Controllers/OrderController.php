@@ -56,13 +56,18 @@ class OrderController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
         ]);
 
-        $previousOrders = Order::query()
+        $previousOrder = Order::query()
             ->where('user_id', auth()->user()->id)
             ->whereIn('status', [Order::STATUS_CHECKOUT, Order::STATUS_PENDING_PAYMENT])
-            ->count();
+            ->first();
 
-        if ($previousOrders > 0) {
-            return response()->json(['Please Complete Previous Orders'], Response::HTTP_CONFLICT);
+        if ($previousOrder && $previousOrder->id) {
+            $data = [
+                'previous_order_id' => $previousOrder->id,
+                'message' => 'Please Complete Previous Orders'
+            ];
+
+            return response()->json($data, Response::HTTP_CONFLICT);
         }
 
         try {
