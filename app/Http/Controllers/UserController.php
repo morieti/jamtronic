@@ -19,6 +19,12 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
+    public function index(): JsonResponse
+    {
+        $users = User::all();
+        return response()->json($users);
+    }
+
     /**
      * Sends an OTP to login/register user
      *

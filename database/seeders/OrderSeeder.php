@@ -27,6 +27,8 @@ class OrderSeeder extends Seeder
         ]);
 
         $product = Product::query()->find(1)->first();
+        $product->item_sold += 1;
+        $product->save();
 
         Order::create([
             'user_id' => 2,
