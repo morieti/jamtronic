@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\HtmlPurifierHelper;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\ProductService;
@@ -35,6 +36,8 @@ class ProductController extends Controller
             $images[] = $image;
         }
         $product->images = $images;
+
+        $product->breadcrumb = $product->getBreadcrumb();
         return response()->json($product);
     }
 
@@ -118,6 +121,19 @@ class ProductController extends Controller
         unset($relatedProducts['data']['totalHits']);
 
         return response()->json($relatedProducts);
+    }
+
+    public function bestSellerProducts(Request $request): JsonResponse
+    {
+        $perPage = (int)$request->input('size', 10);
+
+        $products = Product::query()
+            ->with("images")
+            ->orderBy('item_sold', 'DESC')
+            ->limit($perPage)
+            ->get();
+
+        return response()->json($products);
     }
 
     public function upload(Request $request): JsonResponse

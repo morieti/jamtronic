@@ -52,20 +52,20 @@ class UserController extends Controller
 
         $fullName = $this->userService->verifyOtp($request->mobile, $request->otp);
         if ($fullName) {
-            $token = $this->userService->loginOrRegisterUser($request->mobile, $fullName);
-            return response()->json(['message' => __('otp.verified_success'), 'token' => $token]);
+            $data = $this->userService->loginOrRegisterUser($request->mobile, $fullName);
+            $token = $data['token'];
+            $userID = $data['user_id'];
+            return response()->json(['message' => __('otp.verified_success'), 'token' => $token, 'user_id' => $userID]);
         }
 
         return response()->json(['message' => __('otp.invalid')], 400);
     }
 
-    public function show(int $id): JsonResponse
+    public function show(): JsonResponse
     {
         /** @var User $user */
         $user = auth()->user();
-        if ($user->id != $id) {
-            return response()->json('Access Denied!', Response::HTTP_FORBIDDEN);
-        }
+        $user->last_order_status = $user->lastOrder()->status;
         return response()->json($user);
     }
 

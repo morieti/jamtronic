@@ -78,19 +78,28 @@ class Order extends Model
         return $this->belongsTo(ShippingMethod::class);
     }
 
-    public function items(): HasMany
-    {
-        return $this->hasMany(OrderItem::class);
-    }
-
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
     }
 
-    public function canTransitionTo($state): bool
+    /**
+     * @return int
+     */
+    public function getCartPrice(): int
     {
-        return in_array($state, self::$stateTransitions[$this->status]);
+        $items = $this->items()->where('payable_type', Product::class)->get();
+        $cartPrice = 0;
+        foreach ($items as $item) {
+            $cartPrice += (int)$item->price;
+        }
+
+        return $cartPrice;
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
     }
 
     public function transitionTo($state): static
@@ -103,6 +112,11 @@ class Order extends Model
         return $this;
     }
 
+    public function canTransitionTo($state): bool
+    {
+        return in_array($state, self::$stateTransitions[$this->status]);
+    }
+
     public function getBackInventories(): void
     {
         try {
@@ -113,6 +127,7 @@ class Order extends Model
             foreach ($orderItems as $item) {
                 if ($item->payable_type == Product::class) {
                     $item->payable->inventory += $item->quantity;
+                    $item->payable->item_sold -= $item->quantity;
                     $item->payable->save();
                 }
             }

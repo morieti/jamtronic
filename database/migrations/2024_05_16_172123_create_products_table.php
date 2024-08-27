@@ -28,6 +28,9 @@ return new class extends Migration
             $table->longText('description')->nullable();
             $table->longText('Technical_description')->nullable();
             $table->longText('faq')->nullable();
+
+            $table->unsignedInteger('item_sold')->default(0)->index();
+
             $table->timestamps();
 
             $table->foreign('category_id')->references('id')->on('categories')->restrictOnDelete();

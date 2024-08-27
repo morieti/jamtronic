@@ -32,4 +32,28 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
+
+    public function getGenealogy(): array
+    {
+        $result = [];
+        $category = clone $this;
+        while ($category->parent_id) {
+            $result[] = $category;
+            $category = $category->parent;
+        }
+        $result[] = $category;
+
+        return array_reverse($result);
+    }
+
+    public function getCategoryLineSlugs(): string
+    {
+        $result = $this->getGenealogy();
+        $slugs = [];
+        foreach ($result as $item) {
+            $slugs[] = $item->slug;
+        }
+
+        return implode('/', $slugs);
+    }
 }

@@ -18,7 +18,7 @@ class UserService
             // Generate a random 6 digit OTP
             $otp = random_int(10 ** 5, 10 ** 6 - 1);
             if (env('APP_DEBUG')) {
-                $otp = '123456';
+                $otp = '111111';
             }
             $cacheValue = $otp . '_' . $fullName;
 
@@ -56,14 +56,17 @@ class UserService
         return false;
     }
 
-    public function loginOrRegisterUser($mobile, $fullName = ''): string
+    public function loginOrRegisterUser($mobile, $fullName = ''): array
     {
         /** @var User $user */
         $user = User::query()->firstOrCreate(['mobile' => $mobile]);
-        if (!$user->wasRecentlyCreated) {
-            $user->tokens()->delete();
-        }
+//        if (!$user->wasRecentlyCreated) {
+//            $user->tokens()->delete();
+//        }
         $user->update(['full_name' => $fullName]);
-        return $user->createToken($mobile)->plainTextToken;
+        return [
+            'user_id' => $user->id,
+            'token' => $user->createToken($mobile)->plainTextToken
+        ];
     }
 }

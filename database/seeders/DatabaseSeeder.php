@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             ShippingMethodSeeder::class,
             OrderSeeder::class,
+            TicketSeeder::class
         ]);
     }
 }

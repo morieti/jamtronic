@@ -19,6 +19,7 @@ class Product extends Model
         'title',
         'code',
         'price',
+        'item_sold',
         'inventory',
         'discount_percent',
         'special_offer',
@@ -85,5 +86,25 @@ class Product extends Model
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class);
+    }
+
+    public function getBreadCrumb(): array
+    {
+        $layers = [
+            [
+                'title' => __('Home'),
+                'url' => env('APP_URL')
+            ]
+        ];
+
+        $categoryList = $this->category->getGenealogy();
+        foreach ($categoryList as $category) {
+            $layers[] = [
+                'title' => $category->name,
+                'url' => env('APP_URL') . '/shop/' . $category->getCategoryLineSlugs() . '?category_id=' . $category->id,
+            ];
+        }
+
+        return $layers;
     }
 }

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Models\UserAddress;
 use Illuminate\Database\Seeder;
 
@@ -25,6 +26,8 @@ class OrderSeeder extends Seeder
             'lng' => '12.34',
         ]);
 
+        $product = Product::query()->find(1)->first();
+
         Order::create([
             'user_id' => 2,
             'user_address_id' => 1,
@@ -42,7 +45,7 @@ class OrderSeeder extends Seeder
             'user_id' => 2,
             'user_address_id' => 1,
             'shipping_method_id' => 1,
-            'total_price' => 50000,
+            'total_price' => $product->price,
             'status' => Order::STATUS_PAYMENT_SUCCESS,
             'short_address' => 'My short address',
             'short_shipping_data' => 'Express Tehran',
@@ -66,10 +69,10 @@ class OrderSeeder extends Seeder
 
         OrderItem::create([
             'order_id' => 2,
-            'payable_id' => 1,
-            'payable_type' => Payment::class,
+            'payable_id' => $product->id,
+            'payable_type' => Product::class,
             'quantity' => 1,
-            'price' => 48100,
+            'price' => $product->price,
         ]);
 
         Payment::create([
@@ -82,7 +85,7 @@ class OrderSeeder extends Seeder
 
         Payment::create([
             'order_id' => 2,
-            'amount' => 50000,
+            'amount' => $product->price,
             'payment_method' => 'saman',
             'payment_status' => Payment::STATUS_VERIFIED,
             'transaction_id' => '3000-2000-1000',

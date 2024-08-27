@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('order_id');
             $table->morphs('payable');
-            $table->unsignedBigInteger('quantity')->default(0);
+            $table->unsignedBigInteger('quantity')->default(0)->index();
             $table->unsignedBigInteger('price');
 
             $table->timestamps();

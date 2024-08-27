@@ -8,14 +8,13 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShippingMethodController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketSubjectController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProductController;
 
 Route::middleware('throttle:otp')->group(function () {
     Route::post('/send-otp', [UserController::class, 'send']);
@@ -28,6 +27,7 @@ Route::middleware('throttle:otp')->group(function () {
 
 Route::get('search', [ProductController::class, 'search']);
 Route::get('related/{productId}', [ProductController::class, 'related']);
+Route::get('best-sellers', [ProductController::class, 'bestSellerProducts']);
 
 Route::get('categories', [CategoryController::class, 'index']);
 Route::get('categories/{id}', [CategoryController::class, 'show']);
@@ -46,7 +46,7 @@ Route::get('cities/{id}', [LocationController::class, 'showCity']);
 
 
 Route::middleware('userAuth')->group(function () {
-    Route::get('users/{id}', [UserController::class, 'show']);
+    Route::get('users', [UserController::class, 'show']);
     Route::put('users/{id}', [UserController::class, 'update']);
 
     Route::get('user-addresses', [UserAddressController::class, 'index']);
@@ -83,6 +83,7 @@ Route::middleware('userAuth')->group(function () {
     Route::post('tickets', [TicketController::class, 'store']);
     Route::put('tickets/{id}', [TicketController::class, 'userRespond']);
 
+    Route::get('comments', [CommentController::class, 'userIndex']);
     Route::get('comments/{productId}', [CommentController::class, 'index']);
     Route::post('comments', [CommentController::class, 'store']);
     Route::put('comments/{id}', [CommentController::class, 'update']);

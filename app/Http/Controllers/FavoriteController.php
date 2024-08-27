@@ -15,7 +15,7 @@ class FavoriteController extends Controller
         $user = $request->user();
         $favorites = $user
             ->favorites()
-            ->with('product')
+            ->with('product', 'product.images')
             ->where('expires_at', '>', now())
             ->get();
 
@@ -31,7 +31,7 @@ class FavoriteController extends Controller
 
         $user = $request->user();
         $productIds = $request->input('product_ids');
-        $productIds = array_chunk($productIds, 50);
+        $productIds = array_chunk($productIds, 50)[0];
 
         $favorites = [];
         foreach ($productIds as $productId) {

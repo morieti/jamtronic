@@ -33,7 +33,14 @@ class OrderController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $order = Order::with(['items.payable', 'shippingMethod', 'userAddress', 'payments'])->findOrFail($id);
+        $order = Order::query()
+            ->with(['items', 'items.payable', 'items.payable.images', 'shippingMethod', 'userAddress', 'payments'])
+            ->whereRelation('items', 'payable_type','=',Product::class)
+            ->findOrFail($id);
+
+        $order->total_cart_price = $order->getCartPrice();
+        $order->shipping_price = $order->shippingMethod->price;
+
         return response()->json($order);
     }
 
@@ -91,6 +98,7 @@ class OrderController extends Controller
                 ]);
 
                 $product->inventory -= $item['quantity'];
+                $product->item_sold += $item['quantity'];
                 $product->save();
             }
             DB::commit();

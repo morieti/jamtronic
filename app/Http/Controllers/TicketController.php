@@ -35,7 +35,7 @@ class TicketController extends Controller
             'title' => 'required|string|max:255',
             'ticket_subject_id' => 'required|exists:ticket_subjects,id',
             'description' => 'required|string',
-            'file' => 'nullable|file',
+            'file' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $ticket = Ticket::create([
