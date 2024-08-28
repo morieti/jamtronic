@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('national_code')->unique()->nullable();
             $table->tinyInteger('dob')->nullable();
             $table->tinyInteger('mob')->nullable();
-            $table->tinyInteger('yob')->nullable();
+            $table->smallInteger('yob')->nullable();
             $table->timestamps();
         });
 

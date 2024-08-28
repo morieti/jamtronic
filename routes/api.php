@@ -47,7 +47,7 @@ Route::get('cities/{id}', [LocationController::class, 'showCity']);
 
 Route::middleware('userAuth')->group(function () {
     Route::get('users', [UserController::class, 'show']);
-    Route::put('users/{id}', [UserController::class, 'update']);
+    Route::put('users', [UserController::class, 'update']);
 
     Route::get('user-addresses', [UserAddressController::class, 'index']);
     Route::get('user-addresses/{id}', [UserAddressController::class, 'show']);

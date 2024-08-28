@@ -60,8 +60,7 @@ class UserController extends Controller
         if ($fullName) {
             $data = $this->userService->loginOrRegisterUser($request->mobile, $fullName);
             $token = $data['token'];
-            $userID = $data['user_id'];
-            return response()->json(['message' => __('otp.verified_success'), 'token' => $token, 'user_id' => $userID]);
+            return response()->json(['message' => __('otp.verified_success'), 'token' => $token]);
         }
 
         return response()->json(['message' => __('otp.invalid')], 400);
@@ -75,8 +74,12 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(Request $request): JsonResponse
     {
+        /** @var User $user */
+        $user = auth()->user();
+        $id = $user->id;
+
         $request->validate([
             'full_name' => 'nullable|string|max:255',
             'national_code' => 'nullable|string|max:255',
@@ -85,12 +88,6 @@ class UserController extends Controller
             'mob' => 'nullable|integer',
             'yob' => 'nullable|integer',
         ]);
-
-        /** @var User $user */
-        $user = auth()->user();
-        if ($user->id != $id) {
-            return response()->json('Access Denied!', Response::HTTP_FORBIDDEN);
-        }
 
         $user->update($request->all());
         return response()->json($user);
