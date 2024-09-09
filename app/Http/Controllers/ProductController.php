@@ -197,16 +197,16 @@ class ProductController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         $request->validate([
-            "category_id" => "required|exists:categories,id",
+            "category_id" => "nullable|exists:categories,id",
             "brand_id" => "nullable|exists:brands,id",
-            "title" => "required|string|max:255",
-            "code" => "required|integer|unique:products,code," . $id,
-            "price" => "required|numeric",
-            "inventory" => "required|integer",
+            "title" => "nullable|string|max:255",
+            "code" => "nullable|integer|unique:products,code," . $id,
+            "price" => "nullable|numeric",
+            "inventory" => "nullable|integer",
             "discount_percent" => "nullable|integer",
             "special_offer" => "boolean",
-            "discount_rules" => "required|string",
-            "description" => "required|string",
+            "discount_rules" => "nullable|string",
+            "description" => "nullable|string",
             "technical_description" => "nullable|string",
             "faq" => "nullable|string",
             "image_names" => "nullable|array",
