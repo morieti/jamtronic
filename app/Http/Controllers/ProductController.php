@@ -215,9 +215,9 @@ class ProductController extends Controller
 
         $product = Product::findOrFail($id);
         $data = $request->all();
+        dd($data['discount_rules']);
         try {
             if ($data['discount_rules']) {
-                dd($data['discount_rules']);
                 json_decode($data['discount_rules']);
             }
         } catch (\Throwable $e) {
