@@ -217,6 +217,7 @@ class ProductController extends Controller
         $data = $request->all();
         try {
             if ($data['discount_rules']) {
+                dd($data['discount_rules']);
                 json_decode($data['discount_rules']);
             }
         } catch (\Throwable $e) {
