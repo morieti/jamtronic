@@ -161,7 +161,7 @@ class ProductController extends Controller
             "inventory" => "required|integer",
             "discount_percent" => "nullable|integer",
             "special_offer" => "boolean",
-            "discount_rules" => "required|array",
+            "discount_rules" => "required|string",
             "description" => "required|string",
             "technical_description" => "nullable|string",
             "faq" => "nullable|string",
@@ -170,6 +170,13 @@ class ProductController extends Controller
         ]);
 
         $data = $request->except(['image_names']);
+        try {
+            json_decode($data['discount_rules']);
+        } catch (\Throwable $e) {
+            logger()->error($e);
+            return response()->json('Discount rules not valid', 400);
+        }
+
         $data["description"] = HtmlPurifierHelper::clean($request->input("description"));
         $data["technical_description"] = HtmlPurifierHelper::clean($request->input("technical_description"));
 
