@@ -26,7 +26,7 @@ class OrderController extends Controller
     public function index(Request $request): JsonResponse
     {
         $orders = Order::where('user_id', $request->user()->id)
-            ->with(['items.payable', 'shippingMethod', 'userAddress', 'payments'])
+            ->with(['items.payable', 'items.payable.images', 'shippingMethod', 'userAddress', 'payments'])
             ->get();
         return response()->json($orders);
     }

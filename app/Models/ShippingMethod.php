@@ -57,7 +57,7 @@ class ShippingMethod extends Model
             ->get();
 
         $today = now()->setTime(0, 0, 0);
-        $weekLater = now()->setTime(23, 59, 59)->addWeek();
+        $weekLater = now()->setTime(23, 59, 59)->addDays(6);
         foreach ($parentMethods as $method) {
             if ($method->type == 'express') {
                 $children = ShippingMethod::query()

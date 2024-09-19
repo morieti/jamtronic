@@ -23,7 +23,6 @@ class TicketController extends Controller
         $ticket = Ticket::query()
             ->with(['subject', 'comments'])
             ->where('user_id', auth()->user()->id)
-            ->orderBy('comments.id')
             ->findOrFail($id);
 
         return response()->json($ticket);

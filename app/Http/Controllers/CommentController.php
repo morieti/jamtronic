@@ -13,7 +13,7 @@ class CommentController extends Controller
     public function index(Request $request, int $productId): JsonResponse
     {
         $comments = Comment::query()
-            ->with(['user', 'replies', 'replies.user'])
+            ->with(['user', 'replies', 'replies.user', 'commentable.title', 'commentable.images'])
             ->where('commentable_type', Product::class)
             ->where('commentable_id', $productId)
             ->whereNull('parent_id')
@@ -26,7 +26,7 @@ class CommentController extends Controller
     {
         $user = auth()->user();
         $comments = Comment::query()
-            ->with(['user', 'replies', 'replies.user'])
+            ->with(['user', 'replies', 'replies.user', 'commentable.title', 'commentable.images'])
             ->where('user_id', $user->id)
             ->where('commentable_type', Product::class)
             ->whereNull('parent_id')

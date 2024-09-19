@@ -219,13 +219,18 @@ class ProductController extends Controller
             if (isset($data['discount_rules'])) {
                 json_decode($data['discount_rules']);
             }
+
+            if (isset($data['description'])) {
+                $data["description"] = HtmlPurifierHelper::clean($request->input("description"));
+            }
+
+            if (isset($data['technical_description'])) {
+                $data["technical_description"] = HtmlPurifierHelper::clean($request->input("technical_description"));
+            }
         } catch (\Throwable $e) {
             logger()->error($e);
             return response()->json('Discount rules not valid', 400);
         }
-
-        $data["description"] = HtmlPurifierHelper::clean($request->input("description"));
-        $data["technical_description"] = HtmlPurifierHelper::clean($request->input("technical_description"));
 
         $product->update($data);
 
