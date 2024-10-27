@@ -21,7 +21,7 @@ class UserController extends Controller
 
     public function index(): JsonResponse
     {
-        $users = User::all();
+        $users = User::with(['userAddresses', 'userAddresses.region', 'userAddresses.city'])->get();
         return response()->json($users);
     }
 
@@ -79,6 +79,28 @@ class UserController extends Controller
         /** @var User $user */
         $user = auth()->user();
         $id = $user->id;
+
+        try {
+            $request->validate([
+                'full_name' => 'nullable|string|max:255',
+                'national_code' => 'nullable|string|max:255',
+                'email' => 'nullable|string|email|max:255|unique:users,email,' . $id,
+                'dob' => 'nullable|integer',
+                'mob' => 'nullable|integer',
+                'yob' => 'nullable|integer',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], 400);
+        }
+
+        $user->update($request->all());
+        return response()->json($user);
+    }
+
+    public function adminUpdate(Request $request, int $id): JsonResponse
+    {
+        /** @var User $user */
+        $user = User::query()->findOrFail($id);
 
         $request->validate([
             'full_name' => 'nullable|string|max:255',
