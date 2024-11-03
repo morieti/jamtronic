@@ -97,6 +97,14 @@ class UserController extends Controller
         return response()->json($user);
     }
 
+    public function adminGet(int $id): JsonResponse
+    {
+        /** @var User $user */
+        $user = User::query()->with(['userAddresses', 'userAddresses.region', 'userAddresses.city'])->findOrFail($id);
+        $user->last_order_status = $user->lastOrder()->status;
+        return response()->json($user);
+    }
+
     public function adminUpdate(Request $request, int $id): JsonResponse
     {
         /** @var User $user */

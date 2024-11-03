@@ -104,7 +104,11 @@ Route::middleware('adminAuth:support|admin|super_admin')->prefix('admin')->group
 
 Route::middleware('adminAuth:admin|super_admin')->prefix('admin')->group(function () {
     Route::get('users', [UserController::class, 'index']);
+    Route::get('users/{id}', [UserController::class, 'adminGet']);
     Route::put('users/{id}', [UserController::class, 'adminUpdate']);
+
+    Route::get('users/{id}/user-addresses', [UserAddressController::class, 'adminGet']);
+    Route::put('users/{userId}/user-addresses/{id}', [UserAddressController::class, 'adminUpdate']);
 
     Route::post('categories/upload-image', [CategoryController::class, 'upload']);
     Route::post('categories', [CategoryController::class, 'store']);
