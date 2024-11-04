@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\UserWalletHistory;
 use App\Rules\MobileNumber;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
@@ -41,7 +39,16 @@ class UserController extends Controller
 
         $searchQuery = trim("{$name} {$mobile} {$email} {$nc}");
 
-        $users = User::search($searchQuery)
+        $users = User::search('')
+            ->when($searchQuery, function ($search) use ($searchQuery, $name, $mobile, $email, $nc) {
+                $search->query(function ($query) use ($searchQuery, $name, $mobile, $email, $nc) {
+                    $query
+                        ->where('full_name', 'LIKE', "%{$name}%")
+                        ->where('mobile', 'LIKE', "%{$mobile}%")
+                        ->where('email', 'LIKE', "%{$email}%")
+                        ->where('national_code', 'LIKE', "%{$nc}%");
+                });
+            })
             ->when($filterQuery, function ($search, $filterQuery) {
                 $search->options['filter'] = $filterQuery;
                 $search->raw($filterQuery);
@@ -103,29 +110,6 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    public function update(Request $request): JsonResponse
-    {
-        /** @var User $user */
-        $user = auth()->user();
-        $id = $user->id;
-
-        try {
-            $request->validate([
-                'full_name' => 'nullable|string|max:255',
-                'national_code' => 'nullable|string|max:255',
-                'email' => 'nullable|string|email|max:255|unique:users,email,' . $id,
-                'dob' => 'nullable|integer',
-                'mob' => 'nullable|integer',
-                'yob' => 'nullable|integer',
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json(['message' => $th->getMessage()], 400);
-        }
-
-        $user->update($request->except('wallet_balance'));
-        return response()->json($user);
-    }
-
     public function adminGet(int $id): JsonResponse
     {
         /** @var User $user */
@@ -177,6 +161,29 @@ class UserController extends Controller
             $user->tokens()->delete();
         }
 
+        return response()->json($user);
+    }
+
+    public function update(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = auth()->user();
+        $id = $user->id;
+
+        try {
+            $request->validate([
+                'full_name' => 'nullable|string|max:255',
+                'national_code' => 'nullable|string|max:255',
+                'email' => 'nullable|string|email|max:255|unique:users,email,' . $id,
+                'dob' => 'nullable|integer',
+                'mob' => 'nullable|integer',
+                'yob' => 'nullable|integer',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], 400);
+        }
+
+        $user->update($request->except('wallet_balance'));
         return response()->json($user);
     }
 
