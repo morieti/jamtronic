@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Product;
+use App\Models\User;
 
 return [
 
@@ -136,18 +137,33 @@ return [
         'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
-             Product::class => [
-                 'filterableAttributes'=> [
-                     'id',
-                     'category_id',
-                     'brand_id',
-                     'price',
-                     'inventory',
-                     'discount_percent',
-                     'special_offer',
-                 ],
-                 'sortableAttributes' => ['price', 'created_at'],
-             ],
+            Product::class => [
+                'filterableAttributes' => [
+                    'id',
+                    'category_id',
+                    'brand_id',
+                    'price',
+                    'inventory',
+                    'discount_percent',
+                    'special_offer',
+                ],
+                'sortableAttributes' => ['price', 'created_at'],
+            ],
+            User::class => [
+                'searchableAttributes' => [
+                    'name',
+                    'mobile',
+                    'email',
+                    'national_code',
+                ],
+                'filterableAttributes' => [
+                    'status_active',
+                    'dob',
+                    'mob',
+                    'yob'
+                ],
+                'sortableAttributes' => ['created_at'],
+            ]
         ],
     ],
 ];

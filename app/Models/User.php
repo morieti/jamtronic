@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Scout\Searchable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, Searchable;
 
     /**
      * The attributes that are mass assignable.
@@ -22,11 +23,43 @@ class User extends Authenticatable
         'mobile',
         'email',
         'national_code',
+        'status_active',
         'wallet_balance',
         'dob',
         'mob',
         'yob',
     ];
+
+    /**
+     * Get the index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs(): string
+    {
+        return 'userss_index';
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => (int)$this->id,
+            'full_name' => $this->full_name,
+            'mobile' => $this->mobile,
+            'email' => $this->email,
+            'national_code' => $this->national_code,
+            'status_active' => (bool)$this->status_active,
+            'dob' => (int)$this->dob,
+            'mob' => (int)$this->mob,
+            'yob' => (int)$this->yob,
+            'created_at' => $this->created_at
+        ];
+    }
 
     public function favorites(): HasMany
     {
@@ -48,7 +81,7 @@ class User extends Authenticatable
         return $this->hasMany(UserAddress::class);
     }
 
-    public function lastOrder(): Order
+    public function lastOrder()
     {
         return $this->orders()->orderBy('updated_at', 'desc')->first();
     }

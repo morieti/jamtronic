@@ -7,6 +7,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Random\RandomException;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserService
 {
@@ -60,6 +61,9 @@ class UserService
     {
         /** @var User $user */
         $user = User::query()->firstOrCreate(['mobile' => $mobile]);
+        if (!$user->status_active) {
+            abort(Response::HTTP_FORBIDDEN, __('You are banned'));
+        }
 //        if (!$user->wasRecentlyCreated) {
 //            $user->tokens()->delete();
 //        }

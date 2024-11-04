@@ -6,5 +6,6 @@
     "Order ID: :id": "سفارش شماره: :id",
     "Online Payment :gateway": "پرداخت آنلاین (درگاه :gateway)",
     "Wallet Use": "پرداخت از کیف پول",
-    "Home": "خانه"
+    "Home": "خانه",
+    "You are banned": "اکانت شما توسط ادمین سیستم مسدود شده است."
 }

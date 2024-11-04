@@ -104,6 +104,8 @@ Route::middleware('adminAuth:support|admin|super_admin')->prefix('admin')->group
 
 Route::middleware('adminAuth:admin|super_admin')->prefix('admin')->group(function () {
     Route::get('users', [UserController::class, 'index']);
+    Route::get('users/search', [UserController::class, 'search']);
+    Route::post('users', [UserController::class, 'createUserByAdmin']);
     Route::get('users/{id}', [UserController::class, 'adminGet']);
     Route::put('users/{id}', [UserController::class, 'adminUpdate']);
 

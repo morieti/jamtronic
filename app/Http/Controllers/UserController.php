@@ -25,6 +25,35 @@ class UserController extends Controller
         return response()->json($users);
     }
 
+    public function search(Request $request): JsonResponse
+    {
+        $name = $request->input('name', '');
+        $mobile = $request->input('mobile', '');
+        $email = $request->input('email', '');
+        $nc = $request->input('national_code', '');
+
+        $perPage = (int)$request->input('size', 20);
+        $page = (int)$request->input('page', 1);
+
+        $filters = $request->except(['name', 'mobile', 'email', 'national_code', 'size', 'page'], []);
+
+        $filterQuery = $this->arrangeFilters($filters);
+
+        $searchQuery = trim("{$name} {$mobile} {$email} {$nc}");
+
+        $users = User::search($searchQuery)
+            ->when($filterQuery, function ($search, $filterQuery) {
+                $search->options['filter'] = $filterQuery;
+                $search->raw($filterQuery);
+            })
+            ->paginate($perPage, 'page', $page);
+
+        $users = $users->jsonSerialize();
+        unset($users['data']['totalHits']);
+
+        return response()->json($users);
+    }
+
     /**
      * Sends an OTP to login/register user
      *
@@ -70,7 +99,7 @@ class UserController extends Controller
     {
         /** @var User $user */
         $user = auth()->user();
-        $user->last_order_status = $user->lastOrder()->status;
+        $user->last_order_status = $user->lastOrder() ? $user->lastOrder()->status : '';
         return response()->json($user);
     }
 
@@ -93,7 +122,7 @@ class UserController extends Controller
             return response()->json(['message' => $th->getMessage()], 400);
         }
 
-        $user->update($request->all());
+        $user->update($request->except('wallet_balance'));
         return response()->json($user);
     }
 
@@ -101,8 +130,30 @@ class UserController extends Controller
     {
         /** @var User $user */
         $user = User::query()->with(['userAddresses', 'userAddresses.region', 'userAddresses.city'])->findOrFail($id);
-        $user->last_order_status = $user->lastOrder()->status;
+        $user->last_order_status = $user->lastOrder() ? $user->lastOrder()->status : '';
         return response()->json($user);
+    }
+
+    public function createUserByAdmin(Request $request): JsonResponse
+    {
+        $request->validate([
+            'mobile' => ['required', new MobileNumber()],
+            'full_name' => 'nullable|string|max:255',
+            'national_code' => 'nullable|string|max:255',
+            'status_active' => 'nullable|boolean',
+            'email' => 'nullable|string|email|max:255|unique:users,email',
+            'dob' => 'nullable|integer',
+            'mob' => 'nullable|integer',
+            'yob' => 'nullable|integer',
+        ]);
+
+        $user = new User($request->all());
+        try {
+            $user->save();
+            return response()->json($user);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], 400);
+        }
     }
 
     public function adminUpdate(Request $request, int $id): JsonResponse
@@ -113,6 +164,7 @@ class UserController extends Controller
         $request->validate([
             'full_name' => 'nullable|string|max:255',
             'national_code' => 'nullable|string|max:255',
+            'status_active' => 'nullable|boolean',
             'email' => 'nullable|string|email|max:255|unique:users,email,' . $id,
             'dob' => 'nullable|integer',
             'mob' => 'nullable|integer',
@@ -120,6 +172,11 @@ class UserController extends Controller
         ]);
 
         $user->update($request->all());
+
+        if (!$user->status_active) {
+            $user->tokens()->delete();
+        }
+
         return response()->json($user);
     }
 

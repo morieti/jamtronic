@@ -67,7 +67,7 @@ class ProductController extends Controller
             unset($filters['is_available']);
         }
 
-        $filterQuery = $this->productService->arrangeFilters($filters);
+        $filterQuery = $this->arrangeFilters($filters);
 
         $products = Product::search($query)
             ->query(function ($query) {
