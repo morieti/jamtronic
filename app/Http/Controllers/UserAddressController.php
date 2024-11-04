@@ -111,6 +111,7 @@ class UserAddressController extends Controller
         $user = User::query()->findOrFail($userId);
 
         $data = [
+            'user_id' => $user->id,
             'region_id' => $request->input('region_id'),
             'city_id' => $request->input('city_id'),
             'receiver_name' => $request->input('receiver_name') ?? $user->full_name,
