@@ -160,6 +160,14 @@ class UserAddressController extends Controller
         return response()->json($address);
     }
 
+    public function adminDelete(int $id): JsonResponse
+    {
+        $address = UserAddress::query()->findOrFail($id);
+        $address->delete();
+
+        return response()->json(null, 204);
+    }
+
     public function destroy(int $id): JsonResponse
     {
         $userId = auth()->id();

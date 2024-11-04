@@ -112,6 +112,7 @@ Route::middleware('adminAuth:admin|super_admin')->prefix('admin')->group(functio
     Route::get('users/{id}/user-addresses', [UserAddressController::class, 'adminGet']);
     Route::post('users/{userId}/user-addresses', [UserAddressController::class, 'adminCreateUserAddress']);
     Route::put('users/{userId}/user-addresses/{id}', [UserAddressController::class, 'adminUpdate']);
+    Route::delete('user-addresses/{id}', [UserAddressController::class, 'adminDelete']);
 
     Route::post('categories/upload-image', [CategoryController::class, 'upload']);
     Route::post('categories', [CategoryController::class, 'store']);
