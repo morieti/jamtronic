@@ -110,6 +110,7 @@ Route::middleware('adminAuth:admin|super_admin')->prefix('admin')->group(functio
     Route::put('users/{id}', [UserController::class, 'adminUpdate']);
 
     Route::get('users/{id}/user-addresses', [UserAddressController::class, 'adminGet']);
+    Route::post('users/{userId}/user-addresses', [UserAddressController::class, 'adminCreateUserAddress']);
     Route::put('users/{userId}/user-addresses/{id}', [UserAddressController::class, 'adminUpdate']);
 
     Route::post('categories/upload-image', [CategoryController::class, 'upload']);

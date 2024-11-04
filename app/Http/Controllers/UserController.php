@@ -150,7 +150,7 @@ class UserController extends Controller
 
         $request->validate([
             'full_name' => 'nullable|string|max:255',
-            'national_code' => 'nullable|string|max:255',
+            'national_code' => 'nullable|string|max:255|unique:users,national_code',
             'status_active' => 'nullable|boolean',
             'email' => 'nullable|string|email|max:255|unique:users,email,' . $id,
             'dob' => 'nullable|integer',
