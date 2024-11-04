@@ -53,7 +53,7 @@ class User extends Authenticatable
             'mobile' => $this->mobile,
             'email' => $this->email,
             'national_code' => $this->national_code,
-            'status_active' => (bool)$this->status_active,
+            'status_active' => (int)$this->status_active,
             'dob' => (int)$this->dob,
             'mob' => (int)$this->mob,
             'yob' => (int)$this->yob,

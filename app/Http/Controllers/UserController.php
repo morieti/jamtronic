@@ -120,16 +120,19 @@ class UserController extends Controller
 
     public function createUserByAdmin(Request $request): JsonResponse
     {
-        $request->validate([
-            'mobile' => ['required', new MobileNumber()],
-            'full_name' => 'nullable|string|max:255',
-            'national_code' => 'nullable|string|max:255',
-            'status_active' => 'nullable|boolean',
-            'email' => 'nullable|string|email|max:255|unique:users,email',
-            'dob' => 'nullable|integer',
-            'mob' => 'nullable|integer',
-            'yob' => 'nullable|integer',
-        ]);
+        try {
+            $request->validate([
+                'mobile' => ['required', new MobileNumber(), 'unique:users,mobile'],
+                'full_name' => 'nullable|string|max:255',
+                'national_code' => 'nullable|string|max:255',
+                'email' => 'nullable|string|email|max:255|unique:users,email',
+                'dob' => 'nullable|integer',
+                'mob' => 'nullable|integer',
+                'yob' => 'nullable|integer',
+            ]);
+        } catch (\Throwable $exception) {
+            return response()->json(['message' => $exception->getMessage()], 400);
+        }
 
         $user = new User($request->all());
         try {
