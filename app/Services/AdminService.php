@@ -10,9 +10,9 @@ class AdminService extends UserService
     {
         /** @var Admin $admin */
         $admin = Admin::query()->firstOrCreate(['mobile' => $mobile]);
-        if (!$admin->wasRecentlyCreated) {
-            $admin->tokens()->delete();
-        }
+//        if (!$admin->wasRecentlyCreated) {
+//            $admin->tokens()->delete();
+//        }
         return $admin->createToken($mobile, [$admin->role])->plainTextToken;
     }
 }
