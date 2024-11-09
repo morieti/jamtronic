@@ -56,7 +56,7 @@ class CategoryController extends Controller
             'name' => $data['name'],
             'slug' => $data['slug'],
             'parent_id' => $data['parent_id'],
-            'image' => isset($data['image_name']) ? ("storage/category_images/" . $data['image_name']) : null,
+            'image' => isset($data['image_name']) ? ("storage/category_images/" . $data['image_name']) : '',
         ]);
 
         return response()->json($category, 201);
