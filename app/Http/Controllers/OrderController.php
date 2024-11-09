@@ -31,6 +31,40 @@ class OrderController extends Controller
         return response()->json($orders);
     }
 
+    public function search(Request $request): JsonResponse
+    {
+        $address = $request->input('short_address', '');
+        $shipping = $request->input('short_shipping_data', '');
+
+        $perPage = (int)$request->input('size', 20);
+        $page = (int)$request->input('page', 1);
+
+        $filters = $request->except(['short_address', 'short_shipping_data', 'size', 'page'], []);
+
+        $filterQuery = $this->arrangeFilters($filters);
+
+        $searchQuery = trim("{$address} {$shipping}");
+
+        $orders = Order::search('')
+            ->when($searchQuery, function ($search) use ($searchQuery, $address, $shipping) {
+                $search->query(function ($query) use ($searchQuery, $address, $shipping) {
+                    $query
+                        ->where('short_address', 'LIKE', "%{$address}%")
+                        ->where('short_shipping_data', 'LIKE', "%{$shipping}%");
+                });
+            })
+            ->when($filterQuery, function ($search, $filterQuery) {
+                $search->options['filter'] = $filterQuery;
+                $search->raw($filterQuery);
+            })
+            ->paginate($perPage, 'page', $page);
+
+        $orders = $orders->jsonSerialize();
+        unset($orders['data']['totalHits']);
+
+        return response()->json($orders);
+    }
+
     public function show(int $id): JsonResponse
     {
         $order = Order::query()
@@ -222,6 +256,23 @@ class OrderController extends Controller
         }
 
         return response()->json($order->load(['items.payable', 'shippingMethod', 'userAddress', 'payments']));
+    }
+
+    public function adminUpdate(Request $request, int $id): JsonResponse
+    {
+        $order = Order::query()->findOrFail($id);
+        $request->validate([
+            'status' => 'required|in:' . implode(',', Order::$states),
+        ]);
+
+        $state = $request->input('status');
+        if (!$order->canTransitionTo($state)) {
+            return response()->json(['Order Status Forbidden'], Response::HTTP_FORBIDDEN);
+        }
+        $order->update(['status' => $state]);
+        return response()->json(
+            $order->load(['items', 'items.payable', 'items.payable.images', 'shippingMethod', 'userAddress', 'payments'])
+        );
     }
 
     public function cancelOrder(int $id): JsonResponse

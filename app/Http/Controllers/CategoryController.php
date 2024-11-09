@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
@@ -56,7 +56,7 @@ class CategoryController extends Controller
             'name' => $data['name'],
             'slug' => $data['slug'],
             'parent_id' => $data['parent_id'],
-            'image' => "storage/category_images/" . $data['image_name'],
+            'image' => $data['image_name'] ? ("storage/category_images/" . $data['image_name']) : null,
         ]);
 
         return response()->json($category, 201);
@@ -88,5 +88,15 @@ class CategoryController extends Controller
         $category->save();
 
         return response()->json($category);
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $category = Category::query()->findOrFail($id);
+        if ($category->products()->count() > 0) {
+            return response()->json(['Category has product attached'], 400);
+        }
+        $category->delete();
+        return response()->json(null, 204);
     }
 }

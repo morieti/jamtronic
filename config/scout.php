@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 
@@ -163,6 +164,26 @@ return [
                     'yob'
                 ],
                 'sortableAttributes' => ['created_at'],
+            ],
+            Order::class => [
+                'searchableAttributes' => [
+                    'short_address',
+                    'short_shipping_data',
+                ],
+                'filterableAttributes' => [
+                    'user_id',
+                    'user_address_id',
+                    'shipping_method_id',
+                    'total_price',
+                    'status',
+                    'payment_gateway',
+                    'use_wallet',
+                    'wallet_price_used',
+                ],
+                'sortableAttributes' => [
+                    'total_price',
+                    'created_at'
+                ],
             ]
         ],
     ],

@@ -117,6 +117,7 @@ Route::middleware('adminAuth:admin|super_admin')->prefix('admin')->group(functio
     Route::post('categories/upload-image', [CategoryController::class, 'upload']);
     Route::post('categories', [CategoryController::class, 'store']);
     Route::put('categories/{id}', [CategoryController::class, 'update']);
+    Route::delete('categories/{id}', [CategoryController::class, 'destroy']);
 
     Route::post('brands', [BrandController::class, 'store']);
     Route::put('brands/{id}', [BrandController::class, 'update']);
@@ -126,6 +127,10 @@ Route::middleware('adminAuth:admin|super_admin')->prefix('admin')->group(functio
     Route::post('products', [ProductController::class, 'store']);
     Route::put('products/{id}', [ProductController::class, 'update']);
     Route::delete('products/{id}', [ProductController::class, 'destroy']);
+
+    Route::get('orders', [OrderController::class, 'search']);
+    Route::get('orders/{id}', [OrderController::class, 'show']);
+    Route::put('orders/{id}', [OrderController::class, 'adminUpdate']);
 
     Route::post('regions', [LocationController::class, 'storeRegion']);
     Route::put('regions/{id}', [LocationController::class, 'updateRegion']);

@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
+use Laravel\Scout\Searchable;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     public const string STATUS_CHECKOUT = 'checkout';
     public const string STATUS_PENDING_PAYMENT = 'pending_payment';
@@ -62,6 +63,38 @@ class Order extends Model
         'use_wallet',
         'wallet_price_used'
     ];
+
+    /**
+     * Get the index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs(): string
+    {
+        return 'orders_index';
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'user_id' => $this->user_id,
+            'user_address_id' => $this->user_address_id,
+            'shipping_method_id' => $this->shipping_method_id,
+            'total_price' => $this->total_price,
+            'status' => $this->status,
+            'short_address' => $this->short_address,
+            'short_shipping_data' => $this->short_shipping_data,
+            'payment_gateway' => $this->payment_gateway,
+            'use_wallet' => $this->use_wallet,
+            'wallet_price_used' => $this->wallet_price_used,
+            'created_at' => $this->created_at
+        ];
+    }
 
     public function user(): BelongsTo
     {
