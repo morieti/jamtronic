@@ -82,9 +82,9 @@ class CategoryController extends Controller
             $category->image = "storage/category_images/" . $data['image_name'];
         }
 
-        $category->name = $data['name'];
-        $category->slug = $data['slug'];
-        $category->parent_id = $data['parent_id'];
+        $category->name = $data['name'] ?? $category->name;
+        $category->slug = $data['slug'] ?? $category->slug;
+        $category->parent_id = $data['parent_id'] ?? $category->parent_id;
         $category->save();
 
         return response()->json($category);
