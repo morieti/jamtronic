@@ -44,8 +44,8 @@ class CategoryController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:categories',
+            'name' => 'nullable|string|max:255',
+            'slug' => 'nullable|string|max:255|unique:categories',
             'image_name' => 'nullable|string',
             'parent_id' => 'nullable|exists:categories,id'
         ]);
