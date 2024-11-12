@@ -74,7 +74,7 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $data = $request->only(['name', 'slug', 'parent_id', 'image_name']);
 
-        if ($data['image_name']) {
+        if (isset($data['image_name'])) {
             // Delete the old image if it exists
             if ($category->image) {
                 Storage::disk('public')->delete($category->image);
