@@ -103,7 +103,7 @@ class Order extends Model
     public function toArray(): array
     {
         $result = parent::toArray();
-        $result['items'] = $this->items()->with('payable.images')->get();
+        $result['items'] = $this->items()->with('payable', 'payable.images')->get();
         $result['user'] = $this->user;
 
         return $result;
