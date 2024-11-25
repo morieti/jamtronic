@@ -93,8 +93,21 @@ class Order extends Model
             'use_wallet' => $this->use_wallet,
             'wallet_price_used' => $this->wallet_price_used,
             'created_at' => $this->created_at,
-            'items' => json_encode($this->items()->with('images')),
-            'user' => json_encode($this->user),
+            'items' => $this->items()->with('images')->get()->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'images' => $item->images,
+                ];
+            }),
+            'user' => $this->user ? [
+                'id' => $this->user->id,
+                'full_name' => $this->user->full_name,
+                'mobile' => $this->user->mobile,
+                'email' => $this->user->email,
+                'national_code' => $this->user->national_code,
+            ] : null,
         ];
     }
 
