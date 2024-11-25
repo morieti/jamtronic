@@ -93,12 +93,13 @@ class Order extends Model
             'use_wallet' => $this->use_wallet,
             'wallet_price_used' => $this->wallet_price_used,
             'created_at' => $this->created_at,
-            'items' => $this->items()->with('images')->get()->map(function ($item) {
+            'items' => $this->items()->with('payable.images')->get()->map(function ($item) {
+                /** @var OrderItem $item */
                 return [
                     'id' => $item->id,
                     'quantity' => $item->quantity,
                     'price' => $item->price,
-                    'images' => $item->images,
+                    'images' => $item->payable->images,
                 ];
             }),
             'user' => $this->user ? [
