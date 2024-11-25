@@ -8,10 +8,22 @@ abstract class Controller
     {
         $filterQuery = [];
         foreach ($filters as $key => $filter) {
-            if (empty($key) || is_numeric($key)) {
-                $filterQuery[] = $filter;
+            if (in_array($key, ['to', 'from'])) {
+                if ($key == 'from') {
+                    $fromTimestamp = strtotime($filter);
+                    $filterQuery[] = "created_at >= $fromTimestamp";
+                }
+
+                if ($key == 'to') {
+                    $toTimestamp = strtotime($filter);
+                    $filterQuery[] = "created_at <= $toTimestamp";
+                }
             } else {
-                $filterQuery[] = $key . ' = ' . $filter;
+                if (empty($key) || is_numeric($key)) {
+                    $filterQuery[] = $filter;
+                } else {
+                    $filterQuery[] = $key . ' = ' . $filter;
+                }
             }
         }
 

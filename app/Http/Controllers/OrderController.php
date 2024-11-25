@@ -40,7 +40,7 @@ class OrderController extends Controller
         $perPage = (int)$request->input('size', 20);
         $page = (int)$request->input('page', 1);
 
-        $filters = $request->except(['search', 'size', 'page', 'from', 'to'], []);
+        $filters = $request->except(['search', 'size', 'page'], []);
 
         $filterQuery = $this->arrangeFilters($filters);
 
@@ -48,17 +48,8 @@ class OrderController extends Controller
             ->when($filterQuery, function ($search, $filterQuery) {
                 $search->options['filter'] = $filterQuery;
                 $search->raw($filterQuery);
-            });
-
-        if ($from) {
-            $orders = $orders->where('created_at', '>=', strtotime($from));
-        }
-
-        if ($to) {
-            $orders = $orders->where('created_at', '<=', strtotime($to));
-        }
-
-        $orders = $orders->paginate($perPage, 'page', $page);
+            })
+            ->paginate($perPage, 'page', $page);
 
         $orders = $orders->jsonSerialize();
         unset($orders['data']['totalHits']);
