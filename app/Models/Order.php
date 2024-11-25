@@ -84,10 +84,6 @@ class Order extends Model
         return [
             'user_id' => $this->user_id,
             'user_address_id' => $this->user_address_id,
-            'user_full_name' => $this->user->full_name,
-            'user_mobile' => $this->user->mobile,
-            'user_email' => $this->user->email,
-            'user_national_code' => $this->user->national_code,
             'shipping_method_id' => $this->shipping_method_id,
             'total_price' => $this->total_price,
             'status' => $this->status,
@@ -97,6 +93,56 @@ class Order extends Model
             'use_wallet' => $this->use_wallet,
             'wallet_price_used' => $this->wallet_price_used,
             'created_at' => $this->created_at,
+            'items' => $this->items()->with('payable.images')->get()->map(function ($item) {
+                /** @var OrderItem $item */
+                return [
+                    'id' => $item->id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'images' => optional($item->payable)->images,
+                ];
+            }),
+            'user' => $this->user ? [
+                'id' => $this->user->id,
+                'full_name' => $this->user->full_name,
+                'mobile' => $this->user->mobile,
+                'email' => $this->user->email,
+                'national_code' => $this->user->national_code,
+            ] : null,
+        ];
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'user_id' => $this->user_id,
+            'user_address_id' => $this->user_address_id,
+            'shipping_method_id' => $this->shipping_method_id,
+            'total_price' => $this->total_price,
+            'status' => $this->status,
+            'short_address' => $this->short_address,
+            'short_shipping_data' => $this->short_shipping_data,
+            'payment_gateway' => $this->payment_gateway,
+            'use_wallet' => $this->use_wallet,
+            'wallet_price_used' => $this->wallet_price_used,
+            'created_at' => $this->created_at,
+            'items' => $this->items()->with('payable.images')->get()->map(function ($item) {
+                /** @var OrderItem $item */
+                return [
+                    'id' => $item->id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'images' => optional($item->payable)->images,
+                ];
+            }),
+            'user' => $this->user ? [
+                'id' => $this->user->id,
+                'full_name' => $this->user->full_name,
+                'mobile' => $this->user->mobile,
+                'email' => $this->user->email,
+                'national_code' => $this->user->national_code,
+            ] : null,
         ];
     }
 
