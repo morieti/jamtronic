@@ -34,8 +34,6 @@ class OrderController extends Controller
     public function search(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search', '');
-        $from = $request->input('from', '');
-        $to = $request->input('to', '');
 
         $perPage = (int)$request->input('size', 20);
         $page = (int)$request->input('page', 1);
