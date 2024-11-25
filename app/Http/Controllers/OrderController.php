@@ -51,11 +51,11 @@ class OrderController extends Controller
             });
 
         if ($from) {
-            $orders = $orders->where('created_at', '>=', $from);
+            $orders = $orders->where('created_at', '>=', strtotime($from));
         }
 
         if ($to) {
-            $orders = $orders->where('created_at', '<=', $to);
+            $orders = $orders->where('created_at', '<=', strtotime($to));
         }
 
         $orders = $orders->paginate($perPage, 'page', $page);
