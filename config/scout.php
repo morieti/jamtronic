@@ -169,6 +169,7 @@ return [
                 'searchableAttributes' => [
                     'short_address',
                     'short_shipping_data',
+                    'user',
                 ],
                 'filterableAttributes' => [
                     'user_id',

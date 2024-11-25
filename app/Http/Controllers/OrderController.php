@@ -33,26 +33,22 @@ class OrderController extends Controller
 
     public function search(Request $request): JsonResponse
     {
-        $address = $request->input('short_address', '');
-        $shipping = $request->input('short_shipping_data', '');
+        $searchQuery = $request->input('search', '');
 
         $perPage = (int)$request->input('size', 20);
         $page = (int)$request->input('page', 1);
 
-        $filters = $request->except(['short_address', 'short_shipping_data', 'size', 'page'], []);
+        $filters = $request->except(['search', 'size', 'page'], []);
 
         $filterQuery = $this->arrangeFilters($filters);
 
-        $searchQuery = trim("{$address} {$shipping}");
-
-        $orders = Order::search('')
-            ->when($searchQuery, function ($search) use ($searchQuery, $address, $shipping) {
-                $search->query(function ($query) use ($searchQuery, $address, $shipping) {
-                    $query
-                        ->where('short_address', 'LIKE', "%{$address}%")
-                        ->where('short_shipping_data', 'LIKE', "%{$shipping}%");
-                });
-            })
+        $orders = Order::search($searchQuery)
+//            ->when($searchQuery, function ($search) use ($searchQuery) {
+//                $search->query(function ($query) use ($searchQuery) {
+//                    $query
+//                        ->where('user', 'LIKE', "%{$searchQuery}%");
+//                });
+//            })
             ->when($filterQuery, function ($search, $filterQuery) {
                 $search->options['filter'] = $filterQuery;
                 $search->raw($filterQuery);
@@ -73,7 +69,7 @@ class OrderController extends Controller
             ->findOrFail($id);
 
         $order->total_cart_price = $order->getCartPrice();
-        $order->shipping_price = $order->shippingMethod->price;
+        $order->shipping_price = optional($order->shippingMethod)->price ?? 0;
 
         return response()->json($order);
     }

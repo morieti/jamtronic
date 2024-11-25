@@ -92,7 +92,9 @@ class Order extends Model
             'payment_gateway' => $this->payment_gateway,
             'use_wallet' => $this->use_wallet,
             'wallet_price_used' => $this->wallet_price_used,
-            'created_at' => $this->created_at
+            'created_at' => $this->created_at,
+            'items' => json_encode($this->items()->with('images')),
+            'user' => json_encode($this->user),
         ];
     }
 
