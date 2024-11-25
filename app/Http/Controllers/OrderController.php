@@ -40,7 +40,7 @@ class OrderController extends Controller
         $perPage = (int)$request->input('size', 20);
         $page = (int)$request->input('page', 1);
 
-        $filters = $request->except(['search', 'size', 'page'], []);
+        $filters = $request->except(['search', 'size', 'page', 'from', 'to'], []);
 
         $filterQuery = $this->arrangeFilters($filters);
 
