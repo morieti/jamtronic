@@ -64,6 +64,7 @@ class OrderController extends Controller
 
         $order->total_cart_price = $order->getCartPrice();
         $order->shipping_price = optional($order->shippingMethod)->price ?? 0;
+        $order->discount_amount = $order->grand_price - $order->total_cart_price;
 
         return response()->json($order);
     }
@@ -212,10 +213,12 @@ class OrderController extends Controller
                 $priceData = $this->paymentService->calcOrderPrice($order, $useWallet);
 
                 $price = $priceData['orderPrice'];
+                $grandPrice = $priceData['grandPrice'];
                 $walletPrice = $priceData['walletPrice'];
 
                 $order->fill([
                     'total_price' => $price,
+                    'grand_price' => $grandPrice,
                     'wallet_price_used' => $walletPrice,
                     'payment_gateway' => $request->input('payment_gateway'),
                     'use_wallet' => $useWallet,

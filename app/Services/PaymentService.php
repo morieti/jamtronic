@@ -25,20 +25,24 @@ class PaymentService
         ];
     }
 
-    public function calcProductPrice(Product $product, int $quantity): int
+    public function calcProductPrice(Product $product, int $quantity, bool $useDiscount = true): int
     {
-        if ($product->discount_percent) {
-            return round(($product->price * $quantity) * ((100 - $product->discount_percent) / 100));
-        } else {
-            $rules = json_decode($product->discount_rules);
-            $discountPercent = 0;
-            foreach ($rules as $q => $percent) {
-                if ($quantity >= $q) {
-                    $discountPercent = $percent;
+        if ($useDiscount) {
+            if ($product->discount_percent) {
+                return round(($product->price * $quantity) * ((100 - $product->discount_percent) / 100));
+            } else {
+                $rules = json_decode($product->discount_rules);
+                $discountPercent = 0;
+                foreach ($rules as $q => $percent) {
+                    if ($quantity >= $q) {
+                        $discountPercent = $percent;
+                    }
                 }
-            }
 
-            return round(($product->price * $quantity) * ((100 - $discountPercent) / 100));
+                return round(($product->price * $quantity) * ((100 - $discountPercent) / 100));
+            }
+        } else {
+            return round(($product->price * $quantity));
         }
     }
 
@@ -46,6 +50,14 @@ class PaymentService
     {
         $price = 0;
         $walletPrice = 0;
+        $grandPrice = 0;
+
+        foreach ($order->items as $item) {
+            if ($item->payable_type == Product::class) {
+                $grandPrice += $this->calcProductPrice($item->payable, $item->quantity, false);
+            }
+        }
+
         foreach ($order->items as $item) {
             $price += $item->price;
         }
@@ -62,6 +74,7 @@ class PaymentService
 
         return [
             'orderPrice' => $price,
+            'grandPrice' => $grandPrice,
             'walletPrice' => $walletPrice,
         ];
     }
