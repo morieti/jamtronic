@@ -43,12 +43,6 @@ class OrderController extends Controller
         $filterQuery = $this->arrangeFilters($filters);
 
         $orders = Order::search($searchQuery)
-//            ->when($searchQuery, function ($search) use ($searchQuery) {
-//                $search->query(function ($query) use ($searchQuery) {
-//                    $query
-//                        ->where('user', 'LIKE', "%{$searchQuery}%");
-//                });
-//            })
             ->when($filterQuery, function ($search, $filterQuery) {
                 $search->options['filter'] = $filterQuery;
                 $search->raw($filterQuery);

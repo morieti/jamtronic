@@ -169,10 +169,10 @@ return [
                 'searchableAttributes' => [
                     'short_address',
                     'short_shipping_data',
-                    'user.full_name',
-                    'user.mobile',
-                    'user.email',
-                    'user.national_code',
+                    'user_full_name',
+                    'user_mobile',
+                    'user_email',
+                    'user_national_code',
                 ],
                 'filterableAttributes' => [
                     'user_id',
