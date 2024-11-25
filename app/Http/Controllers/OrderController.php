@@ -34,6 +34,8 @@ class OrderController extends Controller
     public function search(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search', '');
+        $from = $request->input('from', '');
+        $to = $request->input('to', '');
 
         $perPage = (int)$request->input('size', 20);
         $page = (int)$request->input('page', 1);
@@ -46,8 +48,17 @@ class OrderController extends Controller
             ->when($filterQuery, function ($search, $filterQuery) {
                 $search->options['filter'] = $filterQuery;
                 $search->raw($filterQuery);
-            })
-            ->paginate($perPage, 'page', $page);
+            });
+
+        if ($from) {
+            $orders = $orders->where('created_at', '>=', $from);
+        }
+
+        if ($to) {
+            $orders = $orders->where('created_at', '<=', $to);
+        }
+
+        $orders = $orders->paginate($perPage, 'page', $page);
 
         $orders = $orders->jsonSerialize();
         unset($orders['data']['totalHits']);
