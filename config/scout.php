@@ -183,6 +183,7 @@ return [
                     'payment_gateway',
                     'use_wallet',
                     'wallet_price_used',
+                    'created_at',
                 ],
                 'sortableAttributes' => [
                     'total_price',
