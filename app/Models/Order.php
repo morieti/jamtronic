@@ -99,7 +99,7 @@ class Order extends Model
                     'id' => $item->id,
                     'quantity' => $item->quantity,
                     'price' => $item->price,
-                    'images' => $item->payable->images,
+                    'images' => optional($item->payable)->images,
                 ];
             }),
             'user' => $this->user ? [
