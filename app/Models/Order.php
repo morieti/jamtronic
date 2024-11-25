@@ -103,21 +103,8 @@ class Order extends Model
     public function toArray(): array
     {
         $result = parent::toArray();
-        $result['items'] = $this->items()->with('payable.images')->get()->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'quantity' => $item->quantity,
-                'price' => $item->price,
-                'images' => optional($item->payable)->images,
-            ];
-        });
-        $result['user'] = $this->user ? [
-            'id' => $this->user->id,
-            'full_name' => $this->user->full_name,
-            'mobile' => $this->user->mobile,
-            'email' => $this->user->email,
-            'national_code' => $this->user->national_code,
-        ] : null;
+        $result['items'] = $this->items()->with('payable.images')->get();
+        $result['user'] = $this->user;
 
         return $result;
     }
