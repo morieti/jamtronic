@@ -29,6 +29,10 @@ class SendSMSJob implements ShouldQueue
      */
     public function handle(): void
     {
+        if (env('APP_ENV') !== 'production') {
+            var_dump('success', $this->message, $this->mobile);
+        }
+
         $data = [
             "username" => "09122840921",
             "password" => "41667302-6854-4632-845f-d45d0f55e86f",
