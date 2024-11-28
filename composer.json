@@ -15,6 +15,7 @@
         "laravel/scout": "^10.10",
         "laravel/tinker": "^2.9",
         "meilisearch/meilisearch-php": "^1.9.0",
+        "melipayamak/php": "1.0.0",
         "morilog/jalali": "^3.4"
     },
     "require-dev": {

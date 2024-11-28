@@ -2,11 +2,6 @@
 
 namespace App\Services;
 
-use App\Jobs\SendSMSJob;
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
-
 class ProductService
 {
     public function setPriceFilter($priceFilter): string

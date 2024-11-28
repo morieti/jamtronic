@@ -6,7 +6,6 @@ use App\Jobs\SendSMSJob;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Random\RandomException;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserService
@@ -27,7 +26,7 @@ class UserService
             cache()->set('otp_' . $mobile, $cacheValue, $expiresAt);
 
             // Dispatch the job to send the OTP
-            SendSMSJob::dispatch($mobile, __('Login Code: :otp', ['otp' => $otp]));
+            SendSMSJob::dispatch($mobile, $otp);
         } catch (\Throwable $exception) {
             Log::error($exception->getMessage());
             return false;
