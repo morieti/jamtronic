@@ -31,6 +31,7 @@ class SendSMSJob implements ShouldQueue
     {
         if (env('APP_ENV') !== 'production') {
             var_dump('success', $this->message, $this->mobile);
+            exit();
         }
 
         $data = [
