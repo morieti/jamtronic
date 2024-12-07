@@ -21,7 +21,7 @@ class TicketController extends Controller
     public function show(int $id): JsonResponse
     {
         $ticket = Ticket::query()
-            ->with(['subject', 'comments'])
+            ->with(['subject', 'user', 'comments'])
             ->where('user_id', auth()->user()->id)
             ->findOrFail($id);
 
@@ -98,7 +98,7 @@ class TicketController extends Controller
             'status' => 'nullable|in:open,responded,pending,closed',
         ]);
 
-        $tickets = Ticket::query()->with('subject');
+        $tickets = Ticket::query()->with('subject', 'user');
 
         $status = $request->input('status', '');
         if ($status) {

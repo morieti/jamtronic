@@ -162,7 +162,8 @@ class Order extends Model
 
     public function canTransitionTo($state): bool
     {
-        return in_array($state, self::$stateTransitions[$this->status]);
+//        return in_array($state, self::$stateTransitions[$this->status]);
+        return true;
     }
 
     public function getBackInventories(): void

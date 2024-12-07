@@ -101,7 +101,7 @@ class Product extends Model
         foreach ($categoryList as $category) {
             $layers[] = [
                 'title' => $category->name,
-                'url' => env('APP_URL') . '/shop/' . $category->getCategoryLineSlugs() . '?category_id=' . $category->id,
+                'url' => env('APP_URL') . '/product-category/' . $category->getCategoryLineSlugs() . '?category_id=' . $category->id,
             ];
         }
 
