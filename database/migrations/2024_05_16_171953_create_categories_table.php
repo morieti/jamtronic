@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->string('image');
+            $table->text('description')->nullable();
+            $table->string('image')->nullable();
+            $table->string('image_alt')->nullable();
             $table->unsignedBigInteger('parent_id')->nullable()->index();
-            $table->foreign('parent_id')->references('id')->on('categories')->onDelete('restrict');
+//            $table->foreign('parent_id')->references('id')->on('categories')->onDelete('restrict');
             $table->timestamps();
         });
     }

@@ -21,9 +21,11 @@ class ShippingMethodController extends Controller
             'type' => 'required|in:express,express_option,post,in_person',
             'title' => 'required|string|max:255',
             'subtitle' => 'nullable|string|max:255',
+            'price' => 'nullable|numeric|min:0',
             'price_caption' => 'nullable|string|max:255',
             'parent_id' => 'nullable|exists:shipping_methods,id',
             'status' => 'required|in:active,inactive',
+            'capacity' => 'nullable|numeric|min:0',
             'starts_at' => 'nullable|date',
             'ends_at' => 'nullable|date',
         ]);
@@ -38,9 +40,11 @@ class ShippingMethodController extends Controller
             'type' => 'required|in:express,express_option,post,in_person',
             'title' => 'required|string|max:255',
             'subtitle' => 'nullable|string|max:255',
+            'price' => 'nullable|numeric|min:0',
             'price_caption' => 'nullable|string|max:255',
             'parent_id' => 'nullable|exists:shipping_methods,id',
             'status' => 'required|in:active,inactive',
+            'capacity' => 'nullable|numeric|min:0',
             'starts_at' => 'nullable|date',
             'ends_at' => 'nullable|date',
         ]);

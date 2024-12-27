@@ -10,13 +10,38 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CommentController extends Controller
 {
+    public function search(Request $request): JsonResponse
+    {
+        $searchQuery = $request->input('search', '');
+        $perPage = (int)$request->input('size', 20);
+        $page = (int)$request->input('page', 1);
+
+        $filters = $request->except(['search', 'size', 'page'], []);
+        $filters['commentable_type'] = Product::class;
+        $filterQuery = $this->arrangeFilters($filters);
+
+        $comments = Comment::search($searchQuery)
+            ->when($filterQuery, function ($search, $filterQuery) {
+                $search->options['filter'] = $filterQuery;
+                $search->raw($filterQuery);
+            })
+            ->paginate($perPage, 'page', $page);
+
+        $comments = $comments->jsonSerialize();
+        unset($comments['data']['totalHits']);
+
+        return response()->json($comments);
+    }
+
     public function index(Request $request, int $productId): JsonResponse
     {
         $comments = Comment::query()
             ->with(['user', 'replies', 'replies.user', 'commentable.title', 'commentable.images'])
+            ->where('approved', '=', true)
             ->where('commentable_type', Product::class)
             ->where('commentable_id', $productId)
             ->whereNull('parent_id')
+            ->whereRelation('replies', 'approved', '=', true)
             ->get();
 
         return response()->json($comments);
@@ -58,21 +83,23 @@ class CommentController extends Controller
     {
         $request->validate([
             'comment' => 'required|string',
+            'approved' => 'required|boolean',
         ]);
 
-        $comment = Comment::findOrFail($id);
+        $comment = Comment::query()->findOrFail($id);
 
         $admin = auth()->guard('admin')->user();
         $user = auth()->user();
+
+        $data = $request->all();
         if (!$admin) {
             if (!$user || $comment->user_id != $user->id) {
                 return response()->json(['Not Authorized'], Response::HTTP_FORBIDDEN);
             }
+            unset($data['approved']);
         }
 
-        $comment->update([
-            'comment' => $request->input('comment'),
-        ]);
+        $comment->update($data);
         return response()->json($comment);
     }
 

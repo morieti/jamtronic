@@ -16,6 +16,7 @@ return new class extends Migration
             $table->morphs('commentable');
             $table->unsignedBigInteger('user_id')->index()->nullable();
             $table->text('comment');
+            $table->boolean('approved')->default(false);
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamps();
 

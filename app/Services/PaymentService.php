@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\Discount;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\ShippingMethod;
 use App\Services\PaymentGateway\PaymentGatewayInterface;
 use App\Services\PaymentGateway\SamanGateway;
 use App\Services\PaymentGateway\ZarinpalGateway;
@@ -46,6 +48,15 @@ class PaymentService
         }
     }
 
+    public function calcDiscountPrice(Discount $discount, int $price): int
+    {
+        if ($discount->type == Discount::TYPE_PERCENTAGE) {
+            return round($discount->value * $price / 100);
+        } else {
+            return $discount->value;
+        }
+    }
+
     public function calcOrderPrice(Order $order, $useWallet = false): array
     {
         $price = 0;
@@ -58,8 +69,17 @@ class PaymentService
             }
         }
 
+        $discountPrice = 0;
         foreach ($order->items as $item) {
-            $price += $item->price;
+            if ($order->discount && $order->discount->is_free_shipping && $item->payable_type == ShippingMethod::class) {
+                $discountPrice = $this->calcDiscountPrice($order->discount, $item->price);
+            }
+            $price += ($item->price - $discountPrice);
+        }
+
+        if ($order->discount && !$order->discount->is_free_shipping) {
+            $discountPrice = $this->calcDiscountPrice($order->discount, $price);
+            $price -= $discountPrice;
         }
 
         if ($useWallet) {
@@ -75,6 +95,7 @@ class PaymentService
         return [
             'orderPrice' => $price,
             'grandPrice' => $grandPrice,
+            'discountPrice' => $discountPrice,
             'walletPrice' => $walletPrice,
         ];
     }

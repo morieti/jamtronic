@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Comment;
+use App\Models\Ticket;
 use App\Rules\MobileNumber;
 use App\Services\AdminService;
-use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,6 +16,22 @@ class AdminController extends Controller
     public function __construct(AdminService $adminService)
     {
         $this->adminService = $adminService;
+    }
+
+    public function notifications(): JsonResponse
+    {
+        $comments = Comment::query()
+            ->where('approved', '=', false)
+            ->count();
+
+        $tickets = Ticket::query()
+            ->whereIn('status', [Ticket::STATUS_OPEN, Ticket::STATUS_PENDING])
+            ->count();
+
+        return response()->json([
+            'comments' => $comments,
+            'tickets' => $tickets,
+        ]);
     }
 
     /**

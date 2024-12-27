@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Comment;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Ticket;
 use App\Models\User;
 
 return [
@@ -146,7 +148,7 @@ return [
                     'price',
                     'inventory',
                     'discount_percent',
-                    'special_offer',
+                    'special_offer_price',
                 ],
                 'sortableAttributes' => ['price', 'created_at'],
             ],
@@ -189,7 +191,40 @@ return [
                     'total_price',
                     'created_at'
                 ],
-            ]
+            ],
+            Ticket::class => [
+                'searchableAttributes' => [
+                    'title',
+                    'description',
+                    'status',
+                ],
+                'filterableAttributes' => [
+                    'user_id',
+                    'ticket_subject_id',
+                    'status',
+                ],
+                'sortableAttributes' => [
+                    'status',
+                    'created_at',
+                    'updated_at'
+                ],
+            ],
+            Comment::class => [
+                'searchableAttributes' => [
+                    'comment',
+                ],
+                'filterableAttributes' => [
+                    'commentable_id',
+                    'user_id',
+                    'parent_id',
+                    'approved',
+                ],
+                'sortableAttributes' => [
+                    'approved',
+                    'created_at',
+                    'updated_at',
+                ],
+            ],
         ],
     ],
 ];

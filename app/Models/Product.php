@@ -16,14 +16,17 @@ class Product extends Model
     protected $fillable = [
         'category_id',
         'brand_id',
+        'tag_id',
         'title',
         'code',
         'price',
         'item_sold',
         'inventory',
         'discount_percent',
-        'special_offer',
+        'special_offer_price',
         'discount_rules',
+        'sheet_file',
+        'short_description',
         'description',
         'technical_description',
         'faq',
@@ -53,12 +56,15 @@ class Product extends Model
             'id' => (int)$this->id,
             'category_id' => (int)$this->category_id,
             'brand_id' => (int)$this->brand_id,
+            'tag_id' => (int)$this->tag_id,
             'title' => $this->title,
             'code' => $this->code,
             'price' => (int)$this->price,
             'inventory' => (int)$this->inventory,
             'discount_percent' => (int)$this->discount_percent,
-            'special_offer' => (int)$this->special_offer,
+            'special_offer_price' => (int)$this->special_offer_price,
+            'sheet_file' => $this->sheet_file,
+            'short_description' => $this->short_description,
             'description' => $this->description,
             'technical_description' => $this->technical_description,
             'faq' => $this->faq,
@@ -81,6 +87,11 @@ class Product extends Model
     public function brand(): BelongsTo
     {
         return $this->belongsTo(Brand::class);
+    }
+
+    public function tag(): BelongsTo
+    {
+        return $this->belongsTo(Tag::class);
     }
 
     public function images(): HasMany

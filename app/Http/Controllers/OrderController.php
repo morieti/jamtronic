@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Events\WalletBalanceUpdated;
+use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ShippingMethod;
+use App\Models\User;
 use App\Models\UserAddress;
 use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
@@ -59,7 +61,7 @@ class OrderController extends Controller
     {
         $order = Order::query()
             ->with(['items', 'items.payable', 'items.payable.images', 'shippingMethod', 'userAddress', 'payments'])
-            ->whereRelation('items', 'payable_type','=',Product::class)
+            ->whereRelation('items', 'payable_type', '=', Product::class)
             ->findOrFail($id);
 
         $order->total_cart_price = $order->getCartPrice();
@@ -80,9 +82,32 @@ class OrderController extends Controller
         return response()->json($openOrder);
     }
 
+    public function getPaymentMethods(): JsonResponse
+    {
+        return response()->json($this->paymentService->getAllPaymentGateways());
+    }
+
+    public function adminUpdate(Request $request, int $id): JsonResponse
+    {
+        $order = Order::query()->findOrFail($id);
+        $request->validate([
+            'status' => 'required|in:' . implode(',', Order::$states),
+        ]);
+
+        $state = $request->input('status');
+        if (!$order->canTransitionTo($state)) {
+            return response()->json(['Order Status Forbidden'], Response::HTTP_FORBIDDEN);
+        }
+        $order->update(['status' => $state]);
+        return response()->json(
+            $order->load(['items', 'items.payable', 'items.payable.images', 'shippingMethod', 'userAddress', 'payments'])
+        );
+    }
+
     public function store(Request $request): JsonResponse
     {
         $request->validate([
+            'discount_code' => 'nullable|string',
             'items' => 'required|array',
             'items.*.product_id' => 'required|integer',
             'items.*.quantity' => 'required|integer|min:1',
@@ -105,7 +130,7 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
 
-            $order = Order::create([
+            $order = Order::query()->create([
                 'user_id' => auth()->user()->id,
                 'status' => Order::STATUS_CHECKOUT,
             ]);
@@ -126,6 +151,27 @@ class OrderController extends Controller
                 $product->item_sold += $item['quantity'];
                 $product->save();
             }
+
+            $priceData = $this->paymentService->calcOrderPrice($order);
+            $price = $priceData['orderPrice'];
+            $grandPrice = $priceData['grandPrice'];
+
+            $order->fill([
+                'total_price' => $price,
+                'grand_price' => $grandPrice,
+            ]);
+
+            if ($request->has('discount_code')) {
+                $discount = Discount::query()->where('code', $request->get('discount_code'))->first();
+                $userId = auth()->user()->id;
+                if ($discount->isUsable($userId, $order)) {
+                    $order->discount_id = $discount->id;
+                    $order->save();
+
+                    $discount->useDiscount($userId, $order->id);
+                }
+            }
+
             DB::commit();
 
             return response()->json($order->load(['items.payable']), Response::HTTP_CREATED);
@@ -134,11 +180,6 @@ class OrderController extends Controller
             logger()->error($exception->getMessage());
             return response()->json(['Something went wrong'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-    }
-
-    public function getPaymentMethods(): JsonResponse
-    {
-        return response()->json($this->paymentService->getAllPaymentGateways());
     }
 
     public function update(Request $request, int $id): Response
@@ -230,6 +271,7 @@ class OrderController extends Controller
                 $order->user->save();
                 $order->save();
 
+                $url = false;
                 if ($order->total_price > 0) {
                     $url = $this->paymentService->initTransaction($order);
                 } else {
@@ -240,32 +282,21 @@ class OrderController extends Controller
                 DB::commit();
                 event((new WalletBalanceUpdated($order->user))->setOrder($order));
 
-                return redirect()->to($url);
+                if ($url) {
+                    return redirect()->to($url);
+                }
             } catch (\Exception $exception) {
+                $userId = auth()->user()->id;
+                $order->discount->returnDiscount($userId, $order->id);
+
                 DB::rollBack();
+
                 logger()->error($exception->getMessage());
                 return response()->json(['Something went wrong'], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         }
 
         return response()->json($order->load(['items.payable', 'shippingMethod', 'userAddress', 'payments']));
-    }
-
-    public function adminUpdate(Request $request, int $id): JsonResponse
-    {
-        $order = Order::query()->findOrFail($id);
-        $request->validate([
-            'status' => 'required|in:' . implode(',', Order::$states),
-        ]);
-
-        $state = $request->input('status');
-        if (!$order->canTransitionTo($state)) {
-            return response()->json(['Order Status Forbidden'], Response::HTTP_FORBIDDEN);
-        }
-        $order->update(['status' => $state]);
-        return response()->json(
-            $order->load(['items', 'items.payable', 'items.payable.images', 'shippingMethod', 'userAddress', 'payments'])
-        );
     }
 
     public function cancelOrder(int $id): JsonResponse

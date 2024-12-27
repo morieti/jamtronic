@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 use Laravel\Scout\Searchable;
 
@@ -55,6 +56,7 @@ class Order extends Model
         'user_id',
         'user_address_id',
         'shipping_method_id',
+        'discount_id',
         'total_price',
         'grand_price',
         'status',
@@ -129,6 +131,16 @@ class Order extends Model
     public function shippingMethod(): BelongsTo
     {
         return $this->belongsTo(ShippingMethod::class);
+    }
+
+    public function discount(): HasOne
+    {
+        return $this->hasOne(Discount::class);
+    }
+
+    public function discountUsage(): HasOne
+    {
+        return $this->hasOne(DiscountUsage::class);
     }
 
     public function payments(): HasMany

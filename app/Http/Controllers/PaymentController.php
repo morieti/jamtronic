@@ -73,6 +73,8 @@ class PaymentController extends Controller
         if (!$payment) {
             return response()->json(['Unprocessable Order'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+
+        $userId = auth()->user()->id;
         try {
             DB::beginTransaction();
 
@@ -87,6 +89,7 @@ class PaymentController extends Controller
                 $response = 'Payment Successful';
             } else {
                 $order->getBackInventories();
+                $order->discount->returnDiscount($userId, $order->id);
 
                 $paymentStatus = Payment::STATUS_FAILED;
                 $orderStatus = Order::STATUS_PAYMENT_FAILED;
@@ -102,7 +105,9 @@ class PaymentController extends Controller
 
             DB::commit();
         } catch (\Exception $exception) {
+            $order->discount->returnDiscount($userId, $order->id);
             DB::rollBack();
+
             logger()->error($exception->getMessage());
             return response()->json(['Something went wrong'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

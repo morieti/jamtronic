@@ -24,7 +24,7 @@ class ProductFactory extends Factory
             'price' => random_int(100, 1000) * 100,
             'inventory' => random_int(0, 25),
             'discount_percent' => fake()->numberBetween(0, 10),
-            'special_offer' => fake()->boolean(10),
+            'special_offer_price' => fake()->boolean(10),
             'discount_rules' => json_encode([
                 '1' => '0',
                 '5' => '3',

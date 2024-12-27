@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             $table->unsignedBigInteger('grand_price')->nullable()->after('total_price');
+            $table->unsignedBigInteger('discount_id')->nullable()->after('shipping_method_id');
+
+            $table->foreign('discount_id')->references('id')->on('discounts')->onDelete('no action');
         });
     }
 

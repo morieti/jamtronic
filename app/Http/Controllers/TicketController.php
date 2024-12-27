@@ -8,6 +8,29 @@ use Illuminate\Http\JsonResponse;
 
 class TicketController extends Controller
 {
+    public function search(Request $request): JsonResponse
+    {
+        $searchQuery = $request->input('search', '');
+        $perPage = (int)$request->input('size', 20);
+        $page = (int)$request->input('page', 1);
+
+        $filters = $request->except(['search', 'size', 'page'], []);
+
+        $filterQuery = $this->arrangeFilters($filters);
+
+        $tickets = Ticket::search($searchQuery)
+            ->when($filterQuery, function ($search, $filterQuery) {
+                $search->options['filter'] = $filterQuery;
+                $search->raw($filterQuery);
+            })
+            ->paginate($perPage, 'page', $page);
+
+        $tickets = $tickets->jsonSerialize();
+        unset($tickets['data']['totalHits']);
+
+        return response()->json($tickets);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $tickets = Ticket::query()
@@ -23,6 +46,15 @@ class TicketController extends Controller
         $ticket = Ticket::query()
             ->with(['subject', 'user', 'comments'])
             ->where('user_id', auth()->user()->id)
+            ->findOrFail($id);
+
+        return response()->json($ticket);
+    }
+
+    public function showAdmin(int $id): JsonResponse
+    {
+        $ticket = Ticket::query()
+            ->with(['subject', 'user', 'comments'])
             ->findOrFail($id);
 
         return response()->json($ticket);

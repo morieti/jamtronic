@@ -4,37 +4,49 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use Illuminate\Database\Seeder;
+use Illuminate\Http\UploadedFile;
 
 class CategorySeeder extends Seeder
 {
     public function run()
     {
-        Category::create([
-            'name' => 'پروگرمر و بردهای آموزشی',
-            'slug' => 'programmer',
-            'parent_id' => null,
-            'image' => ''
-        ]);
+        $f = fopen(base_path() . '/database/seeders/categories.csv', 'r');
+        fgetcsv($f);
+        while (!feof($f)) {
+            $row = fgetcsv($f);
+            if (!$row) {
+                continue;
+            }
 
-        Category::create([
-            'name' => 'قطعات الکترونیکی',
-            'slug' => 'electronic_components',
-            'parent_id' => null,
-            'image' => ''
-        ]);
+            try {
+                $url = unserialize($row[6])['url'];
+                $content = file_get_contents($url);
+                $fileName = explode('/', $url);
+                $fileName = end($fileName);
 
-        Category::create([
-            'name' => 'مینی کامپیوتر Mini PC',
-            'slug' => 'mini_pc',
-            'parent_id' => 1,
-            'image' => ''
-        ]);
+                $tmpPath = '/tmp/' . $fileName;
+                file_put_contents($tmpPath, $content);
 
-        Category::create([
-            'name' => 'مقاومت',
-            'slug' => 'resistance',
-            'parent_id' => 2,
-            'image' => ''
-        ]);
+                $file = new UploadedFile($tmpPath, $fileName);
+                $imagePath = $file->store('category_images', 'public');
+                $imagePath = 'storage/' . $imagePath;
+            } catch (\Throwable $exception) {
+                $imagePath = null;
+            }
+
+            try {
+                Category::create([
+                    'id' => $row[0],
+                    'name' => $row[1],
+                    'slug' => urldecode($row[2]),
+                    'description' => $row[3],
+                    'parent_id' => $row[4] == 0 ? null : $row[4],
+                    'image' => $imagePath,
+                ]);
+            } catch (\Throwable $exception) {
+                dd($exception->getMessage(), $exception->getLine(), $row);
+            }
+        }
+
     }
 }

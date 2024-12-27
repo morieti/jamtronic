@@ -4,10 +4,12 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\BannerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShippingMethodController;
 use App\Http\Controllers\TicketController;
@@ -25,9 +27,12 @@ Route::middleware('throttle:otp')->group(function () {
     });
 });
 
+Route::get('search-suggestion', [ProductController::class, 'searchSuggestion']);
 Route::get('search', [ProductController::class, 'search']);
 Route::get('related/{productId}', [ProductController::class, 'related']);
 Route::get('best-sellers', [ProductController::class, 'bestSellerProducts']);
+
+Route::get('banners/{type?}', [BannerController::class, 'index']);
 
 Route::get('categories', [CategoryController::class, 'index']);
 Route::get('categories/{id}', [CategoryController::class, 'show']);
@@ -93,16 +98,18 @@ Route::middleware('userAuth')->group(function () {
 Route::middleware('adminAuth:support|admin|super_admin')->prefix('admin')->group(function () {
     Route::get('ticket-subjects', [TicketSubjectController::class, 'index']);
 
-    Route::get('tickets', [TicketController::class, 'adminIndex']);
-    Route::get('tickets/{id}', [TicketController::class, 'show']);
+    Route::get('tickets', [TicketController::class, 'search']);
+    Route::get('tickets/{id}', [TicketController::class, 'showAdmin']);
     Route::put('tickets/{id}', [TicketController::class, 'adminRespond']);
 
-    Route::get('comments/{productId}', [CommentController::class, 'index']);
+    Route::get('comments', [CommentController::class, 'search']);
     Route::put('comments/{id}', [CommentController::class, 'update']);
     Route::delete('comments/{id}', [CommentController::class, 'destroy']);
 });
 
 Route::middleware('adminAuth:admin|super_admin')->prefix('admin')->group(function () {
+    Route::get('notifications', [AdminController::class, 'notifications']);
+
     Route::get('users', [UserController::class, 'index']);
     Route::get('users/search', [UserController::class, 'search']);
     Route::post('users', [UserController::class, 'createUserByAdmin']);
@@ -123,7 +130,19 @@ Route::middleware('adminAuth:admin|super_admin')->prefix('admin')->group(functio
     Route::put('brands/{id}', [BrandController::class, 'update']);
     Route::delete('brands/{id}', [BrandController::class, 'destroy']);
 
+    Route::get('discounts', [DiscountController::class, 'index']);
+    Route::post('discounts', [DiscountController::class, 'store']);
+    Route::get('discounts/{id}', [DiscountController::class, 'show']);
+    Route::put('discounts/{id}', [DiscountController::class, 'update']);
+    Route::delete('discounts/{id}', [DiscountController::class, 'destroy']);
+
+    Route::post('banners/upload-image', [BannerController::class, 'upload']);
+    Route::post('banners', [BannerController::class, 'store']);
+    Route::put('banners/{id}', [BannerController::class, 'update']);
+    Route::delete('banners/{id}', [BannerController::class, 'destroy']);
+
     Route::post('products/upload-image', [ProductController::class, 'upload']);
+    Route::post('products/upload-sheet-file', [ProductController::class, 'uploadDataSheet']);
     Route::post('products', [ProductController::class, 'store']);
     Route::put('products/{id}', [ProductController::class, 'update']);
     Route::delete('products/{id}', [ProductController::class, 'destroy']);

@@ -15,16 +15,19 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('category_id');
             $table->unsignedBigInteger('brand_id')->nullable();
+            $table->unsignedBigInteger('tag_id')->nullable();
             $table->string('title');
-            $table->integer('code')->unique();
+            $table->integer('code')->unique()->nullable();
 
             $table->unsignedInteger('price');
+            $table->unsignedInteger('special_offer_price')->nullable();
             $table->unsignedSmallInteger('inventory')->default(1);
             $table->tinyInteger('discount_percent')->default(0);
-            $table->boolean('special_offer')->default(false);
 
             $table->json('discount_rules')->nullable();
 
+            $table->string('sheet_file')->nullable();
+            $table->longText('short_description')->nullable();
             $table->longText('description')->nullable();
             $table->longText('Technical_description')->nullable();
             $table->longText('faq')->nullable();

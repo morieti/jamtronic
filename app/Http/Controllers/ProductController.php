@@ -41,6 +41,18 @@ class ProductController extends Controller
         return response()->json($product);
     }
 
+    public function searchSuggestion(Request $request): JsonResponse
+    {
+        $query = $request->get('query', '');
+        if (!$query) {
+            return response()->json([]);
+        }
+
+        $suggestions = Product::search($query)->take(5)->get()->pluck('title');
+
+        return response()->json($suggestions);
+    }
+
     public function search(Request $request): JsonResponse
     {
         $query = $request->input('q', '');
@@ -71,7 +83,7 @@ class ProductController extends Controller
 
         $products = Product::search($query)
             ->query(function ($query) {
-                $query->with('images', 'category', 'brand');
+                $query->with('images', 'category', 'brand', 'tag');
             })
             ->when($filterQuery, function ($search, $filterQuery) {
                 $search->options['filter'] = $filterQuery;
@@ -150,6 +162,20 @@ class ProductController extends Controller
         return response()->json(["message" => "Image upload failed"], 400);
     }
 
+    public function uploadDataSheet(Request $request): JsonResponse
+    {
+        $request->validate([
+            "sheet" => "required|file|mimes:pdf|max:2048",
+        ]);
+
+        if ($request->hasFile("sheet")) {
+            $filePath = $request->file("sheet")->store("product_images", "public");
+            return response()->json(["sheet_file_name" => basename($filePath)], 201);
+        }
+
+        return response()->json(["message" => "File upload failed"], 400);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $request->validate([
@@ -160,8 +186,10 @@ class ProductController extends Controller
             "price" => "required|numeric",
             "inventory" => "required|integer",
             "discount_percent" => "nullable|integer",
-            "special_offer" => "boolean",
+            "special_offer_price" => "nullable|numeric",
             "discount_rules" => "required|string",
+            "sheet_file" => "nullable|string",
+            "short_description" => "required|string",
             "description" => "required|string",
             "technical_description" => "nullable|string",
             "faq" => "nullable|string",
@@ -204,8 +232,10 @@ class ProductController extends Controller
             "price" => "nullable|numeric",
             "inventory" => "nullable|integer",
             "discount_percent" => "nullable|integer",
-            "special_offer" => "boolean",
+            "special_offer_price" => "nullable|numeric",
             "discount_rules" => "nullable|string",
+            "sheet_file" => "nullable|string",
+            "short_description" => "nullable|string",
             "description" => "nullable|string",
             "technical_description" => "nullable|string",
             "faq" => "nullable|string",
@@ -233,6 +263,10 @@ class ProductController extends Controller
         }
 
         $product->update($data);
+
+        if ($request->has('sheet_file')) {
+            Storage::disk('public')->delete($product->sheet_file);
+        }
 
         if ($request->has("image_names")) {
             foreach ($product->images as $image) {
