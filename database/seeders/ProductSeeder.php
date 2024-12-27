@@ -26,6 +26,9 @@ class ProductSeeder extends Seeder
             $categoryText = trim(end($categoryText));
 
             $category = Category::query()->where('name', $categoryText)->first();
+            if (!$category) {
+                continue;
+            }
 
             $tagId = null;
             if ($row[27]) {
@@ -79,7 +82,7 @@ class ProductSeeder extends Seeder
                 }
 
             } catch (\Throwable $exception) {
-                dd($exception->getMessage(), $exception->getLine(), $row[0]);
+                dd($exception->getMessage(), $exception->getFile(), $exception->getLine(), $row[0]);
             }
         }
 
