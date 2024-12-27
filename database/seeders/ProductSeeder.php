@@ -56,7 +56,7 @@ class ProductSeeder extends Seeder
                     'title' => $row[3],
                     'code' => $row[2] ? (int)$row[2] : null,
                     'price' => (int)$row[25],
-                    'inventory' => $row[14],
+                    'inventory' => $row[14] ?? 0,
                     'discount_percent' => floor((int)$row[24] * 100 / (int)$row[25]),
                     'special_offer_price' => (int)$row[24],
                     'discount_rules' => $discountRules ? json_encode($discountRules) : null,
