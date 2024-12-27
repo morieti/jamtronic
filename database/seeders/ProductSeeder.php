@@ -13,11 +13,16 @@ class ProductSeeder extends Seeder
 {
     public function run()
     {
+        $offset = env('SEEDER_OFFSET', 0);
         $f = fopen(base_path() . '/database/seeders/products.csv', 'r');
         fgetcsv($f);
         while (!feof($f)) {
             $row = fgetcsv($f);
             if (!$row) {
+                continue;
+            }
+
+            if ($offset && $row[0] < $offset) {
                 continue;
             }
 
@@ -49,6 +54,10 @@ class ProductSeeder extends Seeder
                 if (count($sheetFile) > 1) {
                     $sheetFile = $sheetFile[1];
                 }
+            }
+
+            if (is_array($sheetFile)) {
+                $sheetFile = '';
             }
 
             try {
