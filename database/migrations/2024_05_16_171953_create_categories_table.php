@@ -18,6 +18,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->string('image_alt')->nullable();
+            $table->boolean('is_on_menu')->default(true);
+            $table->tinyInteger('order')->default(0);
             $table->unsignedBigInteger('parent_id')->nullable()->index();
 //            $table->foreign('parent_id')->references('id')->on('categories')->onDelete('restrict');
             $table->timestamps();
