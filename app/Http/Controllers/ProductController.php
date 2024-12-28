@@ -27,11 +27,7 @@ class ProductController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $product = Product::with(['images', 'faved' => function ($query) {
-            $query
-                ->where('user_id', optional(auth()->user())->id)
-                ->where('expires_at', '>', now());
-        }])->findOrFail($id);
+        $product = Product::with('images')->findOrFail($id);
 
         $images = [];
         foreach ($product->images as $image) {
@@ -40,6 +36,8 @@ class ProductController extends Controller
             $images[] = $image;
         }
         $product->images = $images;
+        $userId = optional(auth()->user())->id;
+        $product->faved = $product->faved($userId)->count();
 
         $product->breadcrumb = $product->getBreadcrumb();
         return response()->json($product);
@@ -101,6 +99,10 @@ class ProductController extends Controller
 
         $products = $products->jsonSerialize();
         unset($products['data']['totalHits']);
+        $userId = optional(auth()->user())->id;
+        foreach ($products['data'] as &$datum) {
+            $datum->faved = $datum->faved($userId)->count();
+        }
 
         return response()->json($products);
     }

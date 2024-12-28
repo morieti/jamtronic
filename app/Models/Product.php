@@ -104,9 +104,11 @@ class Product extends Model
         return $this->hasMany(UserFavorite::class);
     }
 
-    public function faved(): HasMany
+    public function faved(int $userId): HasMany
     {
-        return $this->hasMany(UserFavorite::class);
+        return $this->hasMany(UserFavorite::class)
+            ->where('user_id', $userId)
+            ->where('expires_at', '>', now());
     }
 
     public function getBreadCrumb(): array
