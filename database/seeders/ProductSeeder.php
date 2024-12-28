@@ -72,7 +72,7 @@ class ProductSeeder extends Seeder
                     'code' => $row[2] ? (int)$row[2] : null,
                     'price' => (int)$row[25],
                     'inventory' => (!empty($row[14]) ? ((int)$row[14]) : 0),
-                    'discount_percent' => floor((int)$row[24] * 100 / (int)$row[25]),
+                    'discount_percent' => !empty($row[25]) ? floor((int)$row[24] * 100 / (int)$row[25]) : 0,
                     'special_offer_price' => (int)$row[24],
                     'discount_rules' => $discountRules ? json_encode($discountRules) : null,
                     'sheet_file' => $this->getImagePath($sheetFile, $row[0]),
