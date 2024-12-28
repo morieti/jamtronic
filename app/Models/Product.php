@@ -109,7 +109,7 @@ class Product extends Model
     public function faved(): HasMany
     {
         return $this->hasMany(UserFavorite::class)
-            ->where('user_id', Auth::id())
+            ->where('user_id', auth()->user()->id)
             ->where('expires_at', '>', now());
     }
 
