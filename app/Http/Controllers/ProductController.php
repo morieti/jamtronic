@@ -38,7 +38,7 @@ class ProductController extends Controller
         $product->images = $images;
         $userId = optional(auth()->user())->id;
         $product->faved = $product->userFaved($userId)->count();
-        $product->special_offer = $product->special_offer_price > 0;
+        $product->special_offer = $product->getSpecialOffer();
 
         $product->breadcrumb = $product->getBreadcrumb();
         return response()->json($product);
@@ -82,6 +82,12 @@ class ProductController extends Controller
             unset($filters['is_available']);
         }
 
+        $special = $filters['special_offer'] ?? null;
+        if (!is_null($special)) {
+            $filters[] = $this->productService->setSpecialOfferFilter($special);
+            unset($filters['special_offer']);
+        }
+
         $filterQuery = $this->arrangeFilters($filters);
         $userId = optional(auth()->user())->id;
 
@@ -97,7 +103,7 @@ class ProductController extends Controller
             ->through(function ($product) use ($userId) {
                 /** @var Product $product */
                 $product->faved = $product->userFaved($userId)->count();
-                $product->special_offer = $product->special_offer_price > 0;
+                $product->special_offer = $product->getSpecialOffer();
                 return $product;
             });
 

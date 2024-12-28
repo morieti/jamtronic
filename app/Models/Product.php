@@ -104,6 +104,11 @@ class Product extends Model
         return $this->hasMany(UserFavorite::class);
     }
 
+    public function getSpecialOffer(): int
+    {
+        return intval($this->special_offer_price > 0);
+    }
+
     public function userFaved(?int $userId): HasMany
     {
         return $this->hasMany(UserFavorite::class)

@@ -33,6 +33,11 @@ class ProductService
         return 'inventory > ' . ($isAvailable ? 0 : -1);
     }
 
+    public function setSpecialOfferFilter($isSpecial): string
+    {
+        return 'special_offer_price > ' . ($isSpecial ? 0 : -1);
+    }
+
     public function setCategoryFilter($categories): string
     {
         $categoryFilterPcs = explode(',', $categories);
