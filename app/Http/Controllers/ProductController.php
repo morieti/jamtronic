@@ -21,7 +21,7 @@ class ProductController extends Controller
 
     public function index(): JsonResponse
     {
-        $products = Product::with('images', 'faved')->get();
+        $products = Product::with('images')->get();
         return response()->json($products);
     }
 
@@ -37,7 +37,7 @@ class ProductController extends Controller
         }
         $product->images = $images;
         $userId = optional(auth()->user())->id;
-        $product->faved = $product->faved($userId)->count();
+        $product->faved = $product->userFaved($userId)->count();
 
         $product->breadcrumb = $product->getBreadcrumb();
         return response()->json($product);
@@ -101,7 +101,7 @@ class ProductController extends Controller
         unset($products['data']['totalHits']);
         $userId = optional(auth()->user())->id;
         foreach ($products['data'] as &$datum) {
-            $datum->faved = $datum->faved($userId)->count();
+            $datum->faved = $datum->userFaved($userId)->count();
         }
 
         return response()->json($products);
