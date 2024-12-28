@@ -38,6 +38,9 @@ class ProductSeeder extends Seeder
             $tagId = null;
             if ($row[27]) {
                 $tag = Tag::query()->where('name', $row[27])->first();
+                if (!$tag) {
+                    continue;
+                }
                 $tagId = $tag->id;
             }
 
