@@ -82,6 +82,7 @@ class ProductController extends Controller
         }
 
         $filterQuery = $this->arrangeFilters($filters);
+        $userId = optional(auth()->user())->id;
 
         $products = Product::search($query)
             ->query(function ($query) {
@@ -91,12 +92,12 @@ class ProductController extends Controller
                 $search->options['filter'] = $filterQuery;
                 $search->raw($filterQuery);
             })
-            ->paginate($perPage, 'page', $page);
-
-        $userId = optional(auth()->user())->id;
-        foreach ($products['data'] as &$datum) {
-            $datum->faved = $datum->userFaved($userId)->count();
-        }
+            ->paginate($perPage, 'page', $page)
+            ->through(function ($product) use ($userId) {
+                /** @var Product $product */
+                $product->faved = $product->userFaved($userId)->count();
+                return $product;
+            });
 
         $products = $products->jsonSerialize();
         unset($products['data']['totalHits']);
