@@ -55,7 +55,7 @@ class CategoryController extends Controller
             'order' => 'nullable|integer',
         ]);
 
-        $data = $request->only(['name', 'slug', 'parent_id', 'image_name']);
+        $data = $request->only(['name', 'slug', 'parent_id', 'image_name', 'is_on_menu', 'order']);
 
         $category = Category::create([
             'name' => $data['name'],
@@ -81,7 +81,7 @@ class CategoryController extends Controller
         ]);
 
         $category = Category::findOrFail($id);
-        $data = $request->only(['name', 'slug', 'parent_id', 'image_name']);
+        $data = $request->only(['name', 'slug', 'parent_id', 'image_name', 'is_on_menu', 'order']);
 
         if (isset($data['image_name'])) {
             // Delete the old image if it exists
