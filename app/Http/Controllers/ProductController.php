@@ -125,7 +125,7 @@ class ProductController extends Controller
             'id != ' . $product->id,
         ];
 
-        $filterQuery = $this->productService->arrangeFilters($filters);
+        $filterQuery = $this->arrangeFilters($filters);
 
         $relatedProducts = Product::search('')
             ->query(function ($query) {

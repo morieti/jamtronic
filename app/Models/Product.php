@@ -104,7 +104,7 @@ class Product extends Model
         return $this->hasMany(UserFavorite::class);
     }
 
-    public function userFaved(int $userId): HasMany
+    public function userFaved(?int $userId): HasMany
     {
         return $this->hasMany(UserFavorite::class)
             ->where('user_id', $userId)
