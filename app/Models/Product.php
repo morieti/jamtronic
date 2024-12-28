@@ -106,9 +106,11 @@ class Product extends Model
         return $this->hasMany(UserFavorite::class);
     }
 
-    public function faved(): HasOne
+    public function faved(): HasMany
     {
-        return $this->hasOne(UserFavorite::class)->where('user_id', Auth::id());
+        return $this->hasMany(UserFavorite::class)
+            ->where('user_id', Auth::id())
+            ->where('expires_at', '>', now());
     }
 
     public function getBreadCrumb(): array

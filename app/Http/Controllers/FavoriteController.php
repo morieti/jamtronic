@@ -35,11 +35,15 @@ class FavoriteController extends Controller
 
         $favorites = [];
         foreach ($productIds as $productId) {
-            $favorites[] = UserFavorite::create([
-                'user_id' => $user->id,
-                'product_id' => $productId,
-                'expires_at' => now()->addMonth()
-            ]);
+            try {
+                $favorites[] = UserFavorite::query()->create([
+                    'user_id' => $user->id,
+                    'product_id' => $productId,
+                    'expires_at' => now()->addMonth()
+                ]);
+            } catch (\Throwable $exception) {
+                return response()->json(['Duplicate favorite'], 400);
+            }
         }
 
         return response()->json($favorites, 201);
