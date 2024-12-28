@@ -29,7 +29,7 @@ class ProductController extends Controller
     {
         $product = Product::with(['images', 'faved' => function ($query) {
             $query
-                ->where('user_id', auth()->user()->id)
+                ->where('user_id', optional(auth()->user())->id)
                 ->where('expires_at', '>', now());
         }])->findOrFail($id);
 
@@ -89,7 +89,7 @@ class ProductController extends Controller
             ->query(function ($query) {
                 $query->with(['images', 'category', 'brand', 'tag', 'faved' => function ($query) {
                     $query
-                        ->where('user_id', auth()->user()->id)
+                        ->where('user_id', optional(auth()->user())->id)
                         ->where('expires_at', '>', now());
                 }]);
             })
