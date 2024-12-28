@@ -18,6 +18,8 @@ class Category extends Model
         'parent_id',
         'image',
         'image_alt',
+        'is_on_menu',
+        'order',
     ];
 
     public function products(): HasMany

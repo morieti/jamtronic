@@ -47,7 +47,9 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:categories',
             'image_name' => 'nullable|string',
-            'parent_id' => 'nullable|exists:categories,id'
+            'parent_id' => 'nullable|exists:categories,id',
+            'is_on_menu' => 'nullable|boolean',
+            'order' => 'nullable|integer',
         ]);
 
         $data = $request->only(['name', 'slug', 'parent_id', 'image_name']);
@@ -68,7 +70,9 @@ class CategoryController extends Controller
             'name' => 'nullable|string|max:255',
             'slug' => 'nullable|string|max:255|unique:categories,slug,' . $id,
             'image_name' => 'nullable|string',
-            'parent_id' => 'nullable|exists:categories,id'
+            'parent_id' => 'nullable|exists:categories,id',
+            'is_on_menu' => 'nullable|boolean',
+            'order' => 'nullable|integer',
         ]);
 
         $category = Category::findOrFail($id);
