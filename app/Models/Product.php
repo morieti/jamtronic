@@ -99,6 +99,11 @@ class Product extends Model
         return $this->hasMany(ProductImage::class);
     }
 
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(UserFavorite::class);
+    }
+
     public function getBreadCrumb(): array
     {
         $layers = [
