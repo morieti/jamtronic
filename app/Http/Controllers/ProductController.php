@@ -93,12 +93,13 @@ class ProductController extends Controller
             })
             ->paginate($perPage, 'page', $page);
 
-        $products = $products->jsonSerialize();
-        unset($products['data']['totalHits']);
         $userId = optional(auth()->user())->id;
         foreach ($products['data'] as &$datum) {
             $datum->faved = $datum->userFaved($userId)->count();
         }
+
+        $products = $products->jsonSerialize();
+        unset($products['data']['totalHits']);
 
         return response()->json($products);
     }
