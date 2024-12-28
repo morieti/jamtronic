@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\HtmlPurifierHelper;
-use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\ProductService;
@@ -28,7 +27,12 @@ class ProductController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $product = Product::with('images', 'faved')->findOrFail($id);
+        $product = Product::with(['images', 'faved' => function ($query) {
+            $query
+                ->where('user_id', auth()->user()->id)
+                ->where('expires_at', '>', now());
+        }])->findOrFail($id);
+
         $images = [];
         foreach ($product->images as $image) {
             $imagePath = explode('/', $image->image_path);
@@ -83,7 +87,11 @@ class ProductController extends Controller
 
         $products = Product::search($query)
             ->query(function ($query) {
-                $query->with('images', 'category', 'brand', 'tag', 'faved');
+                $query->with(['images', 'category', 'brand', 'tag', 'faved' => function ($query) {
+                    $query
+                        ->where('user_id', auth()->user()->id)
+                        ->where('expires_at', '>', now());
+                }]);
             })
             ->when($filterQuery, function ($search, $filterQuery) {
                 $search->options['filter'] = $filterQuery;
@@ -162,20 +170,6 @@ class ProductController extends Controller
         return response()->json(["message" => "Image upload failed"], 400);
     }
 
-    public function uploadDataSheet(Request $request): JsonResponse
-    {
-        $request->validate([
-            "sheet" => "required|file|mimes:pdf|max:2048",
-        ]);
-
-        if ($request->hasFile("sheet")) {
-            $filePath = $request->file("sheet")->store("product_images", "public");
-            return response()->json(["sheet_file_name" => basename($filePath)], 201);
-        }
-
-        return response()->json(["message" => "File upload failed"], 400);
-    }
-
     public function store(Request $request): JsonResponse
     {
         $request->validate([
@@ -220,6 +214,20 @@ class ProductController extends Controller
         }
 
         return response()->json($product->load("images"), 201);
+    }
+
+    public function uploadDataSheet(Request $request): JsonResponse
+    {
+        $request->validate([
+            "sheet" => "required|file|mimes:pdf|max:2048",
+        ]);
+
+        if ($request->hasFile("sheet")) {
+            $filePath = $request->file("sheet")->store("product_images", "public");
+            return response()->json(["sheet_file_name" => basename($filePath)], 201);
+        }
+
+        return response()->json(["message" => "File upload failed"], 400);
     }
 
     public function update(Request $request, int $id): JsonResponse
