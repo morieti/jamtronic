@@ -64,12 +64,17 @@ class ProductSeeder extends Seeder
             }
 
             try {
+                $code = $row[2] ? (int)$row[2] : null;
+                if ($code) {
+                    Product::query()->where('code', $code)->delete();
+                }
+
                 $product = Product::query()->create([
                     'id' => $row[0],
                     'category_id' => $category->id,
                     'tag_id' => $tagId,
                     'title' => $row[3],
-                    'code' => $row[2] ? (int)$row[2] : null,
+                    'code' => $code,
                     'price' => (int)$row[25],
                     'inventory' => (!empty($row[14]) ? ((int)$row[14]) : 0),
                     'discount_percent' => !empty($row[25]) ? floor((int)$row[24] * 100 / (int)$row[25]) : 0,
