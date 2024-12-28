@@ -11,6 +11,13 @@ class AdminSeeder extends Seeder
     {
         Admin::create([
             'full_name' => 'Super Admin',
+            'mobile' => '09036032356',
+            'role' => Admin::ROLE_SUPER_ADMIN,
+            'last_login' => now(),
+        ]);
+
+        Admin::create([
+            'full_name' => 'Super Admin 2',
             'mobile' => '09123553854',
             'role' => Admin::ROLE_SUPER_ADMIN,
             'last_login' => now(),
