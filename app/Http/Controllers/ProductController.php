@@ -85,11 +85,7 @@ class ProductController extends Controller
 
         $products = Product::search($query)
             ->query(function ($query) {
-                $query->with(['images', 'category', 'brand', 'tag', 'faved' => function ($query) {
-                    $query
-                        ->where('user_id', optional(auth()->user())->id)
-                        ->where('expires_at', '>', now());
-                }]);
+                $query->with('images', 'category', 'brand', 'tag');
             })
             ->when($filterQuery, function ($search, $filterQuery) {
                 $search->options['filter'] = $filterQuery;
