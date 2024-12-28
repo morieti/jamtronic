@@ -92,6 +92,8 @@ class CategoryController extends Controller
         $category->name = $data['name'] ?? $category->name;
         $category->slug = $data['slug'] ?? $category->slug;
         $category->parent_id = $data['parent_id'] ?? $category->parent_id;
+        $category->is_on_menu = $data['is_on_menu'] ?? $category->is_on_menu;
+        $category->order = $data['order'] ?? $category->order;
         $category->save();
 
         return response()->json($category);
