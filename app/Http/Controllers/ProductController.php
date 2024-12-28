@@ -38,6 +38,7 @@ class ProductController extends Controller
         $product->images = $images;
         $userId = optional(auth()->user())->id;
         $product->faved = $product->userFaved($userId)->count();
+        $product->special_offer = $product->special_offer_price > 0;
 
         $product->breadcrumb = $product->getBreadcrumb();
         return response()->json($product);
@@ -96,6 +97,7 @@ class ProductController extends Controller
             ->through(function ($product) use ($userId) {
                 /** @var Product $product */
                 $product->faved = $product->userFaved($userId)->count();
+                $product->special_offer = $product->special_offer_price > 0;
                 return $product;
             });
 
