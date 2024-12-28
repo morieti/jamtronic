@@ -22,13 +22,13 @@ class ProductController extends Controller
 
     public function index(): JsonResponse
     {
-        $products = Product::with('images', 'favorites')->get();
+        $products = Product::with('images', 'faved')->get();
         return response()->json($products);
     }
 
     public function show(int $id): JsonResponse
     {
-        $product = Product::with('images', 'favorites')->findOrFail($id);
+        $product = Product::with('images', 'faved')->findOrFail($id);
         $images = [];
         foreach ($product->images as $image) {
             $imagePath = explode('/', $image->image_path);
@@ -83,7 +83,7 @@ class ProductController extends Controller
 
         $products = Product::search($query)
             ->query(function ($query) {
-                $query->with('images', 'category', 'brand', 'tag', 'favorites');
+                $query->with('images', 'category', 'brand', 'tag', 'faved');
             })
             ->when($filterQuery, function ($search, $filterQuery) {
                 $search->options['filter'] = $filterQuery;

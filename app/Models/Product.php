@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Scout\Searchable;
 
 class Product extends Model
@@ -102,6 +104,11 @@ class Product extends Model
     public function favorites(): HasMany
     {
         return $this->hasMany(UserFavorite::class);
+    }
+
+    public function faved(): HasOne
+    {
+        return $this->hasOne(UserFavorite::class)->where('user_id', Auth::id());
     }
 
     public function getBreadCrumb(): array
