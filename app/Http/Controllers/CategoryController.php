@@ -14,9 +14,12 @@ class CategoryController extends Controller
         if ($request->input('main', 0) == 1) {
             $categories = Category::query()
                 ->whereNull('parent_id')
+                ->orderBy('order', 'ASC')
                 ->get();
         } else {
-            $categories = Category::all();
+            $categories = Category::query()
+                ->orderBy('order', 'ASC')
+                ->get();
         }
         return response()->json($categories);
     }
