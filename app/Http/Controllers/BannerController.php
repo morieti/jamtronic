@@ -47,7 +47,7 @@ class BannerController extends Controller
 
         $data = $request->only(['slug', 'title', 'subtitle', 'image', 'link', 'type']);
         if ($data['image']) {
-            $data['image'] = 'storage/banners' . $data['image'];
+            $data['image'] = 'storage/banners/' . $data['image'];
         } else {
             return response()->json(['Image is Required'], 400);
         }
