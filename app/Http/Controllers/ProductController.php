@@ -261,7 +261,7 @@ class ProductController extends Controller
             "image_names.*" => "string"
         ]);
 
-        $product = Product::findOrFail($id);
+        $product = Product::query()->findOrFail($id);
         $data = $request->all();
         try {
             if (isset($data['discount_rules'])) {
@@ -275,16 +275,16 @@ class ProductController extends Controller
             if (isset($data['technical_description'])) {
                 $data["technical_description"] = HtmlPurifierHelper::clean($request->input("technical_description"));
             }
-
-            if (isset($data['discount_percent'])) {
-                $data['special_offer_price'] = round($data['price'] * ($data['discount_percent'] / 100) / 10) * 10;
-            }
         } catch (\Throwable $e) {
             logger()->error($e);
             return response()->json('Discount rules not valid', 400);
         }
 
         $product->update($data);
+
+        if (isset($product->discount_percent)) {
+            $product->special_offer_price = round($product->price * ($product->discount_percent / 100) / 10) * 10;
+        }
 
         if ($request->has('sheet_file')) {
             Storage::disk('public')->delete($product->sheet_file);
@@ -302,6 +302,8 @@ class ProductController extends Controller
                 ]);
             }
         }
+
+        $product->save();
 
         return response()->json($product->load("images"));
     }
