@@ -188,7 +188,6 @@ class ProductController extends Controller
             "price" => "required|numeric",
             "inventory" => "required|integer",
             "discount_percent" => "nullable|integer",
-            "special_offer_price" => "nullable|numeric",
             "discount_rules" => "required|string",
             "sheet_file" => "nullable|string",
             "short_description" => "required|string",
@@ -209,6 +208,10 @@ class ProductController extends Controller
 
         $data["description"] = HtmlPurifierHelper::clean($request->input("description"));
         $data["technical_description"] = HtmlPurifierHelper::clean($request->input("technical_description"));
+
+        if (isset($data['discount_percent'])) {
+            $data['special_offer_price'] = round($data['price'] * ($data['discount_percent'] / 100) / 10) * 10;
+        }
 
         $product = Product::create($data);
 
@@ -248,7 +251,6 @@ class ProductController extends Controller
             "price" => "nullable|numeric",
             "inventory" => "nullable|integer",
             "discount_percent" => "nullable|integer",
-            "special_offer_price" => "nullable|numeric",
             "discount_rules" => "nullable|string",
             "sheet_file" => "nullable|string",
             "short_description" => "nullable|string",
@@ -272,6 +274,10 @@ class ProductController extends Controller
 
             if (isset($data['technical_description'])) {
                 $data["technical_description"] = HtmlPurifierHelper::clean($request->input("technical_description"));
+            }
+
+            if (isset($data['discount_percent'])) {
+                $data['special_offer_price'] = round($data['price'] * ($data['discount_percent'] / 100) / 10) * 10;
             }
         } catch (\Throwable $e) {
             logger()->error($e);
