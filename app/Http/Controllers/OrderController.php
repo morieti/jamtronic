@@ -177,7 +177,7 @@ class OrderController extends Controller
             return response()->json($order->load(['items.payable']), Response::HTTP_CREATED);
         } catch (\Exception $exception) {
             DB::rollBack();
-            logger()->error($exception->getMessage());
+            logger()->error($exception);
             return response()->json(['Something went wrong'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
