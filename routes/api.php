@@ -136,6 +136,7 @@ Route::middleware('adminAuth:admin|super_admin')->prefix('admin')->group(functio
     Route::put('discounts/{id}', [DiscountController::class, 'update']);
     Route::delete('discounts/{id}', [DiscountController::class, 'destroy']);
 
+    Route::get('banners/{id}', [BannerController::class, 'show']);
     Route::post('banners/upload-image', [BannerController::class, 'upload']);
     Route::post('banners', [BannerController::class, 'store']);
     Route::put('banners/{id}', [BannerController::class, 'update']);

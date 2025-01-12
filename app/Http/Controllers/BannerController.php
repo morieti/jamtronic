@@ -19,6 +19,12 @@ class BannerController extends Controller
         return response()->json($banners);
     }
 
+    public function show(int $id): JsonResponse
+    {
+        $banner = Banner::query()->findOrFail($id);
+        return response()->json($banner);
+    }
+
     public function upload(Request $request): JsonResponse
     {
         $request->validate([
